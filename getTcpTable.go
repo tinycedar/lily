@@ -38,10 +38,9 @@ func (this *ClassReader) ReadPort(bytes []byte) uint16 {
 }
 
 type (
-	DWORD uint32
+	DWORD                        uint32
+	TCP_CONNECTION_OFFLOAD_STATE uint32
 )
-
-type TCP_CONNECTION_OFFLOAD_STATE uint32
 
 const (
 	TcpConnectionOffloadStateInHost     TCP_CONNECTION_OFFLOAD_STATE = 0
@@ -66,8 +65,7 @@ func (r *MIB_TCPROW2) displayIP(val DWORD) string {
 }
 
 func (r *MIB_TCPROW2) displayPort(val DWORD) uint16 {
-	int32Val := uint32(val)
-	return binary.BigEndian.Uint16([]byte{byte(int32Val), byte(int32Val >> 8)})
+	return binary.BigEndian.Uint16([]byte{byte(val), byte(val >> 8)})
 }
 
 func newTCPRow(r *ClassReader) *MIB_TCPROW2 {
@@ -102,75 +100,42 @@ func newTCPTable(r *ClassReader) *MIB_TCPTABLE2 {
 
 func main() {
 	call := syscall.NewLazyDLL("Iphlpapi.dll")
-	getTcpTable2 := call.NewProc("GetTcpTable2")
-	var n uint32 = 0
-	table := &MIB_TCPTABLE2{}
-	r1, _, _ := getTcpTable2.Call(uintptr(unsafe.Pointer(table)), uintptr(unsafe.Pointer(&n)), 1)
-	// if r1 != syscall.ERROR_INSUFFICIENT_BUFFER {
-	// something bad happened; use syscall.Error(r1) to diagnose
-	fmt.Println(r1)
-	// }
+	getTCPTable2 := call.NewProc("GetTcpTable2")
+	var n uint32
+	if err, _, _ := getTCPTable2.Call(uintptr(unsafe.Pointer(&MIB_TCPTABLE2{})), uintptr(unsafe.Pointer(&n)), 1); syscall.Errno(err) != syscall.ERROR_INSUFFICIENT_BUFFER {
+		fmt.Printf("Error calling GetTcpTable2: %v\n", syscall.Errno(err))
+	}
 	b := make([]byte, n)
-	r2, _, _ := getTcpTable2.Call(uintptr(unsafe.Pointer(&b[0])), uintptr(unsafe.Pointer(&n)), 1)
-	if r2 != 0 {
-		// something bad happened; use syscall.Error(r1) to diagnose
-		fmt.Println(r2)
+	if err, _, _ := getTCPTable2.Call(uintptr(unsafe.Pointer(&b[0])), uintptr(unsafe.Pointer(&n)), 1); err != 0 {
+		fmt.Printf("Error calling GetTcpTable2: %v\n", syscall.Errno(err))
 	}
 	const (
-		BING string = "202.89.233.103" // netstat -ano | findstr 202.89.233.103
-		// kaola
+		// netstat -ano | findstr 202.89.233.104
+		LOCALHOST string = "127.0.0.1"
+		BING      string = "202.89.233.103"
+		KAOLA     string = "127.0.0.1"
 	)
-	testRemoteAddr := BING
-	table = newTCPTable(NewClassReader(b))
+	table := newTCPTable(NewClassReader(b))
 	// fmt.Println(table)
 	for i := uint32(0); i < uint32(table.dwNumEntries); i++ {
 		row := table.table[i]
 		remoteAddr := row.displayIP(row.dwRemoteAddr)
-		if remoteAddr == "0.0.0.0" || remoteAddr == "127.0.0.1" || remoteAddr != testRemoteAddr {
+		remotePort := row.displayPort(row.dwRemotePort)
+		if remoteAddr == "0.0.0.0" {
 			continue
 		}
-		if row.dwOwningPid > 0 && remoteAddr == testRemoteAddr {
-			fmt.Println("row: ", row)
-			setTcpEntry := call.NewProc("SetTcpEntry")
+		testRemoteAddr := KAOLA
+		// if remoteAddr != testRemoteAddr {
+		// 	continue
+		// }
+		if row.dwOwningPid > 0 && remoteAddr == testRemoteAddr && (remoteAddr != LOCALHOST || remotePort == 80) {
 			row.dwState = 12
-			r, _, _ := setTcpEntry.Call(uintptr(unsafe.Pointer(row)))
-			fmt.Println("setTcpEntry: ", r)
+			if err, _, _ := call.NewProc("SetTcpEntry").Call(uintptr(unsafe.Pointer(row))); err != 0 {
+				fmt.Printf("Error calling SetTcpEntry: %v\n", syscall.Errno(err))
+			} else {
+				fmt.Println("Succeed to call setTcpEntry: ", row)
+			}
 		}
-		// fmt.Printf("\t%-6d\t%s:%-16d\t%s:%-16d\t%d\t%d\n", state, r.ReadIp(localAddrBytes), r.ReadPort(localPortBytes), remoteAddr, remotePort, pid, offLoadState)
+		fmt.Printf("\t%-6d\t%s:%-16d\t%s:%-16d\t%d\t%d\n", row.dwState, row.displayIP(row.dwLocalAddr), row.displayPort(row.dwLocalPort), row.displayIP(row.dwRemoteAddr), row.displayPort(row.dwRemotePort), row.dwOwningPid, row.dwOffloadState)
 	}
-	// loopCount := reader.ReadUint32()
-	// fmt.Println("count = ", loopCount)
-	// fmt.Printf("\t%s\t%16s\t%16s\t\t\t%s\t%s\n", "State", "Local Address", "Foreign Address", "PID", "Off Load State")
-	// for i := uint32(0); i < loopCount; i++ {
-	// 	bb := reader.ReadBytes(28)
-	// 	// fmt.Println("bytes: ", bb)
-	// 	r := NewClassReader(bb)
-	// 	state := r.ReadUint32()
-	// 	localAddrBytes := r.ReadBytes(4)
-	// 	localPortBytes := r.ReadBytes(4)
-	// 	remoteAddrBytes := r.ReadBytes(4)
-	// 	remoteAddr := r.ReadIp(remoteAddrBytes)
-	// 	remotePortBytes := r.ReadBytes(4)
-	// 	remotePort := r.ReadPort(remotePortBytes)
-	// 	pid := r.ReadUint32()
-	// 	offLoadState := r.ReadUint32()
-
-	// 	const (
-	// 		BING string = "202.89.233.104" // netstat -ano | findstr 202.89.233.104
-	// 		// kaola
-	// 	)
-	// 	testRemoteAddr := BING
-	// 	if remoteAddr == "0.0.0.0" || remoteAddr == "127.0.0.1" || remoteAddr != testRemoteAddr {
-	// 		continue
-	// 	}
-	// 	if pid > 0 && remoteAddr == testRemoteAddr {
-	// 		row := &MIB_TCPROW2{DWORD(12), DWORD(bigEndian.Uint32(localAddrBytes)), DWORD(bigEndian.Uint32(localPortBytes)), DWORD(bigEndian.Uint32(remoteAddrBytes)), DWORD(bigEndian.Uint32(remotePortBytes)), DWORD(pid), TCP_CONNECTION_OFFLOAD_STATE(offLoadState)}
-	// 		fmt.Println("row: ", row)
-
-	// 		setTcpEntry := call.NewProc("SetTcpEntry")
-	// 		r, _, _ := setTcpEntry.Call(uintptr(unsafe.Pointer(row)))
-	// 		fmt.Println("setTcpEntry: ", r)
-	// 	}
-	// 	fmt.Printf("\t%-6d\t%s:%-16d\t%s:%-16d\t%d\t%d\n", state, r.ReadIp(localAddrBytes), r.ReadPort(localPortBytes), remoteAddr, remotePort, pid, offLoadState)
-	// }
 }
