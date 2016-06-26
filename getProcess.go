@@ -11,7 +11,6 @@ import (
 
 func main() {
 	processes := getAllProcessIds()
-	// common.Info("[getAllProcessIds]: %v", processes)
 	for _, v := range processes {
 		if v > 0 {
 			openProcess(v)
@@ -35,25 +34,30 @@ func getAllProcessIds() []uint32 {
 	return processes[:cbNeeded/4]
 }
 
-func openProcess(pid uint32) uint32 {
+func openProcess(pid uint32) string {
 	procOpenProcess := syscall.NewLazyDLL("Kernel32.dll").NewProc("OpenProcess")
 	var dwDesiredAccess uint32 = 0x0400 | 0x0010
-	openPid, _, _ := procOpenProcess.Call(uintptr(unsafe.Pointer(&dwDesiredAccess)), 0, uintptr(pid))
+	openPid, _, errorStr := procOpenProcess.Call(uintptr(unsafe.Pointer(&dwDesiredAccess)), 0, uintptr(pid))
 	if openPid > 0 {
+		// procQueryFullProcessImageName := syscall.NewLazyDLL("Kernel32.dll").NewProc("QueryFullProcessImageNameA")
+		// var processName = make([]byte, 1024)
+		// var cbNeeded uint32 = 1024
+		// procQueryFullProcessImageName.Call(uintptr(openPid), 0, uintptr(unsafe.Pointer(&processName[0])), uintptr(unsafe.Pointer(&cbNeeded)))
+		// fmt.Println(string(processName[0:cbNeeded]))
 		procEnumProcessModules := syscall.NewLazyDLL("Psapi.dll").NewProc("EnumProcessModules")
 		var cbNeeded uint32
 		var modules = make([]unsafe.Pointer, 10)
 		if success, _, _ := procEnumProcessModules.Call(uintptr(openPid), uintptr(unsafe.Pointer(&modules[0])), 10, uintptr(unsafe.Pointer(&cbNeeded))); success > 0 {
-			// fmt.Println("modules = ", modules)
-			// var processName = "<unknown>------------------------"
 			procGetModuleBaseName := syscall.NewLazyDLL("Psapi.dll").NewProc("GetModuleBaseNameA")
-			var processName = make([]int8, 10240)
-			// var processName = ""
-			l, _, _ := procGetModuleBaseName.Call(uintptr(openPid), uintptr(unsafe.Pointer(modules[0])), uintptr(unsafe.Pointer(&processName)), uintptr(1024))
+			var processName = make([]byte, 1024)
+			var cbNeeded uint32 = 1024
+			l, _, _ := procGetModuleBaseName.Call(uintptr(openPid), uintptr(unsafe.Pointer(modules[0])), uintptr(unsafe.Pointer(&processName[0])), uintptr(cbNeeded))
 			if l > 0 {
-				fmt.Println(processName[0:l])
+				fmt.Println(string(processName[0:cbNeeded]))
 			}
 		}
+	} else {
+		fmt.Println(errorStr, pid)
 	}
-	return 0
+	return ""
 }
