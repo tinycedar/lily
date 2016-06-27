@@ -5,15 +5,17 @@ import (
 	"syscall"
 	"time"
 	"unsafe"
-
-	"github.com/tinycedar/lily/common"
+	// "github.com/tinycedar/lily/common"
 )
 
 func main() {
 	processes := getAllProcessIds()
 	for _, v := range processes {
 		if v > 0 {
-			openProcess(v)
+			processName := openProcess(v)
+			if processName != "" {
+				// fmt.Printf("Pid = %v\t%v\n", v, processName)
+			}
 		}
 	}
 }
@@ -21,43 +23,59 @@ func main() {
 func getAllProcessIds() []uint32 {
 	now := time.Now()
 	defer func(now time.Time) {
-		common.Info("time elapsed: %v", time.Since(now))
+		// common.Info("time elapsed: %v", time.Since(now))
 	}(now)
 	procEnumProcesses := syscall.NewLazyDLL("Psapi.dll").NewProc("EnumProcesses")
 	var processes = make([]uint32, 1024)
 	var cbNeeded uint32
 	procEnumProcesses.Call(uintptr(unsafe.Pointer(&processes[0])), uintptr(len(processes)), uintptr(unsafe.Pointer(&cbNeeded)))
 	if cbNeeded <= 0 {
-		common.Error("Calling EnumProcesses returned empty")
+		// common.Error("Calling EnumProcesses returned empty")
 		return nil
 	}
 	return processes[:cbNeeded/4]
 }
 
 func openProcess(pid uint32) string {
+	//TODO defer close pid
 	procOpenProcess := syscall.NewLazyDLL("Kernel32.dll").NewProc("OpenProcess")
 	var dwDesiredAccess uint32 = 0x0400 | 0x0010
 	openPid, _, errorStr := procOpenProcess.Call(uintptr(unsafe.Pointer(&dwDesiredAccess)), 0, uintptr(pid))
-	if openPid > 0 {
-		// procQueryFullProcessImageName := syscall.NewLazyDLL("Kernel32.dll").NewProc("QueryFullProcessImageNameA")
-		// var processName = make([]byte, 1024)
-		// var cbNeeded uint32 = 1024
-		// procQueryFullProcessImageName.Call(uintptr(openPid), 0, uintptr(unsafe.Pointer(&processName[0])), uintptr(unsafe.Pointer(&cbNeeded)))
-		// fmt.Println(string(processName[0:cbNeeded]))
-		procEnumProcessModules := syscall.NewLazyDLL("Psapi.dll").NewProc("EnumProcessModules")
-		var cbNeeded uint32
-		var modules = make([]unsafe.Pointer, 10)
-		if success, _, _ := procEnumProcessModules.Call(uintptr(openPid), uintptr(unsafe.Pointer(&modules[0])), 10, uintptr(unsafe.Pointer(&cbNeeded))); success > 0 {
-			procGetModuleBaseName := syscall.NewLazyDLL("Psapi.dll").NewProc("GetModuleBaseNameA")
-			var processName = make([]byte, 1024)
-			var cbNeeded uint32 = 1024
-			l, _, _ := procGetModuleBaseName.Call(uintptr(openPid), uintptr(unsafe.Pointer(modules[0])), uintptr(unsafe.Pointer(&processName[0])), uintptr(cbNeeded))
-			if l > 0 {
-				fmt.Println(string(processName[0:cbNeeded]))
-			}
+	if openPid <= 0 {
+		fmt.Printf("Error: %v Pid = %v\n", errorStr, pid)
+		return ""
+	}
+	return getProcessName(openPid)
+}
+
+func getProcessName(pid uintptr) string {
+	defer metrics("getProcessName")(time.Now())
+	procQueryFullProcessImageName := syscall.NewLazyDLL("Kernel32.dll").NewProc("QueryFullProcessImageNameA")
+	var cbNeeded uint32 = 1024
+	var processName = make([]byte, cbNeeded)
+	procQueryFullProcessImageName.Call(uintptr(pid), 0, uintptr(unsafe.Pointer(&processName[0])), uintptr(unsafe.Pointer(&cbNeeded)))
+	return string(processName[0:cbNeeded])
+}
+
+func getProcessName2(pid uintptr) string {
+	defer metrics("getProcessName2")(time.Now())
+	procEnumProcessModules := syscall.NewLazyDLL("Psapi.dll").NewProc("EnumProcessModules")
+	var cbNeeded uint32
+	var modules = make([]unsafe.Pointer, 10)
+	if success, _, _ := procEnumProcessModules.Call(uintptr(pid), uintptr(unsafe.Pointer(&modules[0])), 10, uintptr(unsafe.Pointer(&cbNeeded))); success > 0 {
+		procGetModuleBaseName := syscall.NewLazyDLL("Psapi.dll").NewProc("GetModuleBaseNameA")
+		var processName = make([]byte, 1024)
+		cbNeeded = 20
+		l, _, _ := procGetModuleBaseName.Call(uintptr(pid), uintptr(unsafe.Pointer(modules[0])), uintptr(unsafe.Pointer(&processName[0])), uintptr(cbNeeded))
+		if l > 0 {
+			return string(processName[0:cbNeeded])
 		}
-	} else {
-		fmt.Println(errorStr, pid)
 	}
 	return ""
+}
+
+func metrics(funcName string) func(now time.Time) {
+	return func(now time.Time) {
+		fmt.Printf("Processing [%v] costs %v\n", funcName, time.Since(now))
+	}
 }

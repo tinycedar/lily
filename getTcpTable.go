@@ -98,9 +98,8 @@ func newTCPTable(r *ClassReader) *MIB_TCPTABLE2 {
 	return t
 }
 
-func main() {
-	call := syscall.NewLazyDLL("Iphlpapi.dll")
-	getTCPTable2 := call.NewProc("GetTcpTable2")
+func getTCPTable() *MIB_TCPTABLE2 {
+	getTCPTable2 := syscall.NewLazyDLL("Iphlpapi.dll").NewProc("GetTcpTable2")
 	var n uint32
 	if err, _, _ := getTCPTable2.Call(uintptr(unsafe.Pointer(&MIB_TCPTABLE2{})), uintptr(unsafe.Pointer(&n)), 1); syscall.Errno(err) != syscall.ERROR_INSUFFICIENT_BUFFER {
 		fmt.Printf("Error calling GetTcpTable2: %v\n", syscall.Errno(err))
@@ -116,7 +115,26 @@ func main() {
 		KAOLA     string = "127.0.0.1"
 	)
 	table := newTCPTable(NewClassReader(b))
-	// fmt.Println(table)
+	return table
+}
+
+func CloseTCPEntry(row *MIB_TCPROW2) {
+	row.dwState = 12
+	if err, _, _ := syscall.NewLazyDLL("Iphlpapi.dll").NewProc("SetTcpEntry").Call(uintptr(unsafe.Pointer(row))); err != 0 {
+		fmt.Printf("Error calling SetTcpEntry: %v\n", syscall.Errno(err))
+	} else {
+		fmt.Println("Succeed to call setTcpEntry: ", row)
+	}
+}
+
+func main() {
+	table := getTCPTable()
+	const (
+		// netstat -ano | findstr 202.89.233.104
+		BING      string = "202.89.233.103" // netstat -ano | findstr 202.89.233.103
+		LOCALHOST string = "127.0.0.1"
+		KAOLA     string = "127.0.0.1"
+	)
 	for i := uint32(0); i < uint32(table.dwNumEntries); i++ {
 		row := table.table[i]
 		remoteAddr := row.displayIP(row.dwRemoteAddr)
@@ -129,12 +147,7 @@ func main() {
 		// 	continue
 		// }
 		if row.dwOwningPid > 0 && remoteAddr == testRemoteAddr && (remoteAddr != LOCALHOST || remotePort == 80) {
-			row.dwState = 12
-			if err, _, _ := call.NewProc("SetTcpEntry").Call(uintptr(unsafe.Pointer(row))); err != 0 {
-				fmt.Printf("Error calling SetTcpEntry: %v\n", syscall.Errno(err))
-			} else {
-				fmt.Println("Succeed to call setTcpEntry: ", row)
-			}
+			CloseTCPEntry(row)
 		}
 		fmt.Printf("\t%-6d\t%s:%-16d\t%s:%-16d\t%d\t%d\n", row.dwState, row.displayIP(row.dwLocalAddr), row.displayPort(row.dwLocalPort), row.displayIP(row.dwRemoteAddr), row.displayPort(row.dwRemotePort), row.dwOwningPid, row.dwOffloadState)
 	}
