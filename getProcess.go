@@ -6,18 +6,29 @@ import (
 	"time"
 	"unsafe"
 	// "github.com/tinycedar/lily/common"
+	"strings"
 )
 
-func main() {
-	processes := getAllProcessIds()
-	for _, v := range processes {
+func getBrowserProcessMap() map[uint32]string {
+	pidMap := make(map[uint32]string) // [pid]processName
+	for _, v := range getAllProcessIds() {
 		if v > 0 {
-			processName := openProcess(v)
-			if processName != "" {
-				// fmt.Printf("Pid = %v\t%v\n", v, processName)
+			processName := strings.ToLower(strings.Trim(openProcess(v), " "))
+			if processName == "" {
+				continue
+			}
+			for _, name := range []string{"chrome.exe", "iexplore.exe", "microsoftedge.exe", "microsoftedgecp.exe"} {
+				if strings.HasPrefix(processName, name) {
+					pidMap[v] = name
+				}
 			}
 		}
 	}
+	fmt.Println("================== Running browser pid list =====================")
+	for k, v := range pidMap {
+		fmt.Printf("%v\t%v\n", k, v)
+	}
+	return pidMap
 }
 
 func getAllProcessIds() []uint32 {
@@ -40,12 +51,12 @@ func openProcess(pid uint32) string {
 	//TODO defer close pid
 	procOpenProcess := syscall.NewLazyDLL("Kernel32.dll").NewProc("OpenProcess")
 	var dwDesiredAccess uint32 = 0x0400 | 0x0010
-	openPid, _, errorStr := procOpenProcess.Call(uintptr(unsafe.Pointer(&dwDesiredAccess)), 0, uintptr(pid))
+	openPid, _, _ := procOpenProcess.Call(uintptr(unsafe.Pointer(&dwDesiredAccess)), 0, uintptr(pid))
 	if openPid <= 0 {
-		fmt.Printf("Error: %v Pid = %v\n", errorStr, pid)
+		// fmt.Printf("Error: %v Pid = %v\n", errorStr, pid)
 		return ""
 	}
-	return getProcessName(openPid)
+	return getProcessName2(openPid)
 }
 
 func getProcessName(pid uintptr) string {
@@ -76,6 +87,6 @@ func getProcessName2(pid uintptr) string {
 
 func metrics(funcName string) func(now time.Time) {
 	return func(now time.Time) {
-		fmt.Printf("Processing [%v] costs %v\n", funcName, time.Since(now))
+		// fmt.Printf("Processing [%v] costs %v\n", funcName, time.Since(now))
 	}
 }

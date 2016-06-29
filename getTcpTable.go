@@ -126,29 +126,3 @@ func CloseTCPEntry(row *MIB_TCPROW2) {
 		fmt.Println("Succeed to call setTcpEntry: ", row)
 	}
 }
-
-func main() {
-	table := getTCPTable()
-	const (
-		// netstat -ano | findstr 202.89.233.104
-		BING      string = "202.89.233.103" // netstat -ano | findstr 202.89.233.103
-		LOCALHOST string = "127.0.0.1"
-		KAOLA     string = "127.0.0.1"
-	)
-	for i := uint32(0); i < uint32(table.dwNumEntries); i++ {
-		row := table.table[i]
-		remoteAddr := row.displayIP(row.dwRemoteAddr)
-		remotePort := row.displayPort(row.dwRemotePort)
-		if remoteAddr == "0.0.0.0" {
-			continue
-		}
-		testRemoteAddr := KAOLA
-		// if remoteAddr != testRemoteAddr {
-		// 	continue
-		// }
-		if row.dwOwningPid > 0 && remoteAddr == testRemoteAddr && (remoteAddr != LOCALHOST || remotePort == 80) {
-			CloseTCPEntry(row)
-		}
-		fmt.Printf("\t%-6d\t%s:%-16d\t%s:%-16d\t%d\t%d\n", row.dwState, row.displayIP(row.dwLocalAddr), row.displayPort(row.dwLocalPort), row.displayIP(row.dwRemoteAddr), row.displayPort(row.dwRemotePort), row.dwOwningPid, row.dwOffloadState)
-	}
-}
