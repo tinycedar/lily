@@ -20,27 +20,20 @@ const (
 
 // https://github.com/spf13/hugo/blob/master/watcher/batcher.go
 func main() {
-	initGUI()
+	go initGUI()
 	initBgProcessor()
-}
-
-func makeBasicControls() ui.Control {
-	return ui.NewButton("aaa")
-}
-
-func makeNumbersAndLists() ui.Control {
-	return ui.NewButton("bbb")
 }
 
 // go build -ldflags -H=windowsgui ./...
 func initGUI() {
 	if err := ui.Main(func() {
-		box := ui.NewVerticalBox()
-		box.SetPadded(true)
 		hbox := ui.NewHorizontalBox()
 		hbox.SetPadded(true)
 		hbox.Append(contructBasicControls(), true)
 		hbox.Append(contructNumberAndListControls(), true)
+
+		box := ui.NewVerticalBox()
+		box.SetPadded(true)
 		box.Append(hbox, false)
 
 		window := ui.NewWindow("Lily", 640, 480, true)
