@@ -10,7 +10,6 @@ import (
 
 	"golang.org/x/sys/windows/registry"
 
-	"github.com/andlabs/ui"
 	"github.com/fsnotify/fsnotify"
 )
 
@@ -20,34 +19,7 @@ const (
 
 // https://github.com/spf13/hugo/blob/master/watcher/batcher.go
 func main() {
-	go initGUI()
 	initBgProcessor()
-}
-
-// go build -ldflags -H=windowsgui ./...
-func initGUI() {
-	if err := ui.Main(func() {
-		hbox := ui.NewHorizontalBox()
-		hbox.SetPadded(true)
-		hbox.Append(contructBasicControls(), true)
-		hbox.Append(contructNumberAndListControls(), true)
-
-		box := ui.NewVerticalBox()
-		box.SetPadded(true)
-		box.Append(hbox, false)
-
-		window := ui.NewWindow("Lily", 640, 480, true)
-		window.SetMargined(true)
-		window.SetChild(box)
-		window.OnClosing(func(*ui.Window) bool {
-			os.Exit(0)
-			ui.Quit()
-			return false
-		})
-		window.Show()
-	}); err != nil {
-		panic(err)
-	}
 }
 
 func initBgProcessor() {
@@ -68,63 +40,6 @@ func initBgProcessor() {
 			}
 		}
 	}
-}
-
-func contructBasicControls() ui.Control {
-	group := ui.NewGroup("Basic Controls")
-	group.SetMargined(true)
-	inner := ui.NewVerticalBox()
-	inner.SetPadded(true)
-	inner.Append(ui.NewButton("Button"), false)
-	inner.Append(ui.NewCheckbox("Checkbox"), false)
-	entry := ui.NewEntry()
-	entry.SetText("Entry")
-	inner.Append(entry, false)
-	inner.Append(ui.NewLabel("Label"), false)
-	inner.Append(ui.NewHorizontalSeparator(), false)
-	inner.Append(ui.NewDatePicker(), false)
-	inner.Append(ui.NewTimePicker(), false)
-	inner.Append(ui.NewDateTimePicker(), false)
-	group.SetChild(inner)
-	return group
-}
-
-func contructNumberAndListControls() ui.Control {
-	outer := ui.NewVerticalBox()
-	outer.SetPadded(true)
-	numbersGroup := ui.NewGroup("Numbers")
-	numbersGroup.SetMargined(true)
-	numbersBox := ui.NewVerticalBox()
-	numbersBox.SetPadded(true)
-	numbersBox.Append(ui.NewSpinbox(0, 100), false)
-	numbersBox.Append(ui.NewSlider(0, 100), false)
-	// numbersBox.Append(ui.NewProgressBar(), false)
-	numbersGroup.SetChild(numbersBox)
-	outer.Append(numbersGroup, false)
-
-	listsGroup := ui.NewGroup("Lists")
-	listsGroup.SetMargined(true)
-	listsBox := ui.NewVerticalBox()
-	listsBox.SetPadded(true)
-	cbox := ui.NewCombobox()
-	cbox.Append("Combobox Item 1")
-	cbox.Append("Combobox Item 2")
-	cbox.Append("Combobox Item 3")
-	listsBox.Append(cbox, false)
-	radio := ui.NewRadioButtons()
-	radio.Append("Radio button 1")
-	radio.Append("Radio button 2")
-	radio.Append("Radio button 3")
-	listsBox.Append(radio, false)
-	tab := ui.NewTab()
-	tab.Append("Tab 1", ui.NewHorizontalBox())
-	tab.Append("Tab 2", ui.NewHorizontalBox())
-	tab.Append("Tab 3", ui.NewHorizontalBox())
-	listsBox.Append(tab, true)
-
-	listsGroup.SetChild(listsBox)
-	outer.Append(listsGroup, false)
-	return outer
 }
 
 func openRegistry() {
