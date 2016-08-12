@@ -11,6 +11,7 @@ import (
 	"golang.org/x/sys/windows/registry"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/tinycedar/lily/gui"
 )
 
 const (
@@ -19,7 +20,8 @@ const (
 
 // https://github.com/spf13/hugo/blob/master/watcher/batcher.go
 func main() {
-	initBgProcessor()
+	go initBgProcessor()
+	gui.InitMainWindow()
 }
 
 func initBgProcessor() {
