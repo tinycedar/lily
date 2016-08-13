@@ -1,8 +1,6 @@
 package gui
 
 import (
-	"strings"
-
 	"os"
 
 	"github.com/lxn/walk"
@@ -13,7 +11,7 @@ import (
 
 func InitMainWindow() {
 	var mw *walk.MainWindow
-	var inTE, outTE *walk.TextEdit
+	// var inTE, outTE *walk.TextEdit
 	var treeView *walk.TreeView
 	treeModel, err := model.NewHostConfigModel()
 	if err != nil {
@@ -21,10 +19,11 @@ func InitMainWindow() {
 		panic(err)
 	}
 	if err := (MainWindow{
-		AssignTo: &mw,
-		Title:    "Lily",
-		MinSize:  Size{800, 500},
-		Layout:   VBox{},
+		AssignTo:  &mw,
+		Title:     "Lily",
+		MinSize:   Size{750, 500},
+		Layout:    VBox{},
+		MenuItems: newMenuItems(mw),
 		Children: []Widget{
 			HSplitter{
 				Children: []Widget{
@@ -42,16 +41,21 @@ func InitMainWindow() {
 							// 		walk.MsgBoxOK|walk.MsgBoxIconError)
 							// }
 						},
+						StretchFactor: 1,
 					},
-					TextEdit{AssignTo: &inTE},
+					TextEdit{
+						// TextEdit{AssignTo: &inTE},
+						AssignTo:      nil,
+						StretchFactor: 3,
+					},
 				},
 			},
-			PushButton{
-				Text: "SCREAM",
-				OnClicked: func() {
-					outTE.SetText(strings.ToUpper(inTE.Text()))
-				},
-			},
+			// PushButton{
+			// 	Text: "SCREAM",
+			// 	OnClicked: func() {
+			// 		outTE.SetText(strings.ToUpper(inTE.Text()))
+			// 	},
+			// },
 		},
 	}).Create(); err != nil {
 		common.Error("Error creating main window: ", err)
