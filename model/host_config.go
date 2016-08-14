@@ -5,59 +5,66 @@ import (
 	"github.com/tinycedar/lily/common"
 )
 
-type hostConfigModel struct {
+type HostConfigModel struct {
 	walk.TreeModelBase
-	roots []*hostConfigItem
+	Roots []*HostConfigItem
 }
 
-func NewHostConfigModel() (*hostConfigModel, error) {
-	model := new(hostConfigModel)
-	icon, err := walk.NewBitmapFromFile("res/open.png")
+func NewHostConfigModel() *HostConfigModel {
+	//TODO laod system hosts for backup
+	model := new(HostConfigModel)
+	icon, err := walk.NewBitmapFromFile("res/new.png")
 	if err != nil {
 		common.Error("Error loading icon: ", err)
 	}
-	model.roots = append(model.roots, &hostConfigItem{name: "Daniel", icon: icon})
-	model.roots = append(model.roots, &hostConfigItem{name: "Elim", icon: icon})
-	model.roots = append(model.roots, &hostConfigItem{name: "大家好", icon: icon})
-	return model, nil
+	item := &HostConfigItem{Name: "test1", Icon: icon}
+	model.Roots = append(model.Roots, item)
+	model.Roots = append(model.Roots, &HostConfigItem{Name: "test2", Icon: icon})
+	model.Roots = append(model.Roots, &HostConfigItem{Name: "test3", Icon: icon})
+	model.Roots = append(model.Roots, &HostConfigItem{Name: "pre", Icon: icon})
+	return model
 }
 
-func (m *hostConfigModel) RootAt(index int) walk.TreeItem {
-	return m.roots[index]
+func (m *HostConfigModel) Append(item *HostConfigItem) {
+	m.Roots = append(m.Roots, item)
 }
 
-func (m *hostConfigModel) RootCount() int {
-	return len(m.roots)
+func (m *HostConfigModel) RootAt(index int) walk.TreeItem {
+	return m.Roots[index]
 }
 
-func (m *hostConfigModel) LazyPopulation() bool {
+func (m *HostConfigModel) RootCount() int {
+	return len(m.Roots)
+}
+
+func (m *HostConfigModel) LazyPopulation() bool {
 	return false
 }
 
-type hostConfigItem struct {
+type HostConfigItem struct {
 	walk.TreeItem
-	name string
-	icon *walk.Bitmap
+	Name string
+	Icon *walk.Bitmap
 }
 
-var _ walk.TreeItem = new(hostConfigItem)
+var _ walk.TreeItem = new(HostConfigItem)
 
-func (i *hostConfigItem) Image() interface{} {
-	return i.icon
+func (i *HostConfigItem) Image() interface{} {
+	return i.Icon
 }
 
-func (i *hostConfigItem) Text() string {
-	return i.name
+func (i *HostConfigItem) Text() string {
+	return i.Name
 }
 
-func (i *hostConfigItem) Parent() walk.TreeItem {
+func (i *HostConfigItem) Parent() walk.TreeItem {
 	return nil
 }
 
-func (i *hostConfigItem) ChildCount() int {
+func (i *HostConfigItem) ChildCount() int {
 	return 0
 }
 
-func (i *hostConfigItem) ChildAt(index int) walk.TreeItem {
+func (i *HostConfigItem) ChildAt(index int) walk.TreeItem {
 	return nil
 }
