@@ -23,17 +23,17 @@ func newToolBar(treeView *walk.TreeView) ToolBar {
 					conf.Config.HostConfigModel.Append(item)
 				},
 			},
-			Action{
-				Text:  "刷新",
-				Image: "res/refresh.png",
-				// Enabled: Bind("isSpecialMode && enabledCB.Checked"),
-				OnTriggered: func() {
-					common.Info("reloaded...")
-					conf.Load()
-					// item := &model.HostConfigItem{Name: "rrrr", Icon: common.IconMap[common.ICON_NEW]}
-					// conf.Config.HostConfigModel.Append(item)
-				},
-			},
+			//FIXME 去除刷新按钮是因为点击以后， 双击hosts不再生效
+			// Action{
+			// 	Text:  "刷新",
+			// 	Image: "res/refresh.png",
+			// 	// Enabled: Bind("isSpecialMode && enabledCB.Checked"),
+			// 	OnTriggered: func() {
+			// 		conf.Load()
+			// 		// item := &model.HostConfigItem{Name: "rrrr", Icon: common.IconMap[common.ICON_NEW]}
+			// 		// conf.Config.HostConfigModel.Append(item)
+			// 	},
+			// },
 			// Action{
 			// 	Text:  "修改",
 			// 	Image: "res/pencil.png",
