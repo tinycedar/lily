@@ -18,7 +18,6 @@ func (m *HostConfigModel) Append(item *HostConfigItem) {
 
 func (m *HostConfigModel) RemoveAll() {
 	m.Roots = nil
-	m.PublishItemsReset(nil)
 }
 
 func (m *HostConfigModel) RootAt(index int) walk.TreeItem {

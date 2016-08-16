@@ -2,7 +2,6 @@ package conf
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -15,8 +14,8 @@ import (
 var Config *config
 
 type config struct {
-	CurrentHostIndex int `json:"CurrentHostIndex"`
-	HostConfigModel  *model.HostConfigModel
+	CurrentHostIndex int
+	HostConfigModel  *model.HostConfigModel `json:"-"`
 }
 
 func init() {
@@ -31,17 +30,14 @@ func Load() {
 }
 
 func loadConfig() {
-	startup := Config == nil
-	if startup {
+	if startup := Config == nil; startup {
 		Config = new(config)
-		Config.HostConfigModel = model.NewHostConfigModel()
-		if bytes, err := ioutil.ReadFile("conf/config.json"); err != nil || json.Unmarshal(bytes, Config) != nil {
-			//TODO define error and notify user
-			common.Error("Fail to read and unmarshal config.json: ", err)
-			panic(err)
-		}
 	} else {
 		Config.HostConfigModel.RemoveAll()
+	}
+	Config.HostConfigModel = model.NewHostConfigModel()
+	if bytes, err := ioutil.ReadFile("conf/config.json"); err != nil || json.Unmarshal(bytes, Config) != nil {
+		common.Error("Fail to read and unmarshal config.json: ", err)
 	}
 }
 
@@ -66,8 +62,6 @@ func loadHosts() {
 			if i == Config.CurrentHostIndex {
 				icon = common.IconMap[common.ICON_OPEN]
 			}
-			common.Info("Append hosts " + temp[0])
-			fmt.Println("treeModel: ", Config.HostConfigModel)
 			Config.HostConfigModel.Append(&model.HostConfigItem{Name: temp[0], Icon: icon})
 		}
 	}
