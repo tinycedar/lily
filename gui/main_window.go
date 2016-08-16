@@ -49,7 +49,7 @@ func InitMainWindow() {
 	if currentItem == nil {
 		common.Error("Invalid CurrentHostIndex in config.json, cannot find the specific hosts")
 	} else {
-		if bytes, err := ioutil.ReadFile("conf/hosts/" + currentItem.Text() + ".hosts"); err == nil {
+		if bytes, err := ioutil.ReadFile("conf/hosts/" + currentItem.Text() + ".hosts"); err != nil {
 			common.Error("Error reading host config: ", err)
 		} else {
 			hostConfigText.SetText(string(bytes))
