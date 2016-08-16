@@ -1,9 +1,6 @@
 package model
 
-import (
-	"github.com/lxn/walk"
-	"github.com/tinycedar/lily/common"
-)
+import "github.com/lxn/walk"
 
 type HostConfigModel struct {
 	walk.TreeModelBase
@@ -11,22 +8,17 @@ type HostConfigModel struct {
 }
 
 func NewHostConfigModel() *HostConfigModel {
-	//TODO laod system hosts for backup
-	model := new(HostConfigModel)
-	icon, err := walk.NewBitmapFromFile("res/new.png")
-	if err != nil {
-		common.Error("Error loading icon: ", err)
-	}
-	item := &HostConfigItem{Name: "test1", Icon: icon}
-	model.Roots = append(model.Roots, item)
-	model.Roots = append(model.Roots, &HostConfigItem{Name: "test2", Icon: icon})
-	model.Roots = append(model.Roots, &HostConfigItem{Name: "test3", Icon: icon})
-	model.Roots = append(model.Roots, &HostConfigItem{Name: "pre", Icon: icon})
-	return model
+	return new(HostConfigModel)
 }
 
 func (m *HostConfigModel) Append(item *HostConfigItem) {
 	m.Roots = append(m.Roots, item)
+	m.PublishItemsReset(nil)
+}
+
+func (m *HostConfigModel) RemoveAll() {
+	m.Roots = nil
+	m.PublishItemsReset(nil)
 }
 
 func (m *HostConfigModel) RootAt(index int) walk.TreeItem {

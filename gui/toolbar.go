@@ -10,7 +10,6 @@ import (
 
 func newToolBar(treeView *walk.TreeView) ToolBar {
 	var addButton *walk.Action
-	treeModel := conf.GetConfig().HostConfigModel
 	tb := ToolBar{
 		ButtonStyle: ToolBarButtonImageBeforeText,
 		Items: []MenuItem{
@@ -20,27 +19,27 @@ func newToolBar(treeView *walk.TreeView) ToolBar {
 				Image:    "res/add.png",
 				// Enabled: Bind("isSpecialMode && enabledCB.Checked"),
 				OnTriggered: func() {
-					icon, _ := walk.NewBitmapFromFile("res/new.png")
-					item := &model.HostConfigItem{Name: "test2", Icon: icon}
-					treeModel.Append(item)
-					common.Info("Add button appended... len: ", len(treeModel.Roots))
+					item := &model.HostConfigItem{Name: "aaaaaa", Icon: common.IconMap[common.ICON_NEW]}
+					conf.Config.HostConfigModel.Append(item)
 				},
 			},
-			// Separator{},
 			Action{
 				Text:  "刷新",
 				Image: "res/refresh.png",
 				// Enabled: Bind("isSpecialMode && enabledCB.Checked"),
-				// OnTriggered: mw.specialAction_Triggered,
+				OnTriggered: func() {
+					common.Info("reloaded...")
+					conf.Load()
+					// item := &model.HostConfigItem{Name: "rrrr", Icon: common.IconMap[common.ICON_NEW]}
+					// conf.Config.HostConfigModel.Append(item)
+				},
 			},
-			// Separator{},
-			Action{
-				Text:  "修改",
-				Image: "res/pencil.png",
-				// Enabled: Bind("isSpecialMode && enabledCB.Checked"),
-				// OnTriggered: mw.specialAction_Triggered,
-			},
-			// Separator{},
+			// Action{
+			// 	Text:  "修改",
+			// 	Image: "res/pencil.png",
+			// 	// Enabled: Bind("isSpecialMode && enabledCB.Checked"),
+			// 	// OnTriggered: mw.specialAction_Triggered,
+			// },
 			Action{
 				Text:  "删除",
 				Image: "res/delete.png",

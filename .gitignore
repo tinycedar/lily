@@ -25,3 +25,6 @@ _testmain.go
 
 debug
 launch.json
+
+/conf/hosts/hst_*.hosts
+/conf/config.json

@@ -1,6 +1,9 @@
 package gui
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"os"
 
 	"github.com/lxn/walk"
@@ -15,7 +18,7 @@ func InitMainWindow() {
 	var mw *walk.MainWindow
 	var hostConfigText *walk.TextEdit
 	var treeView *walk.TreeView
-	treeModel := conf.GetConfig().HostConfigModel
+	treeModel := conf.Config.HostConfigModel
 	if err := (MainWindow{
 		AssignTo: &mw,
 		Title:    "Lily",
@@ -25,15 +28,18 @@ func InitMainWindow() {
 		ToolBar: newToolBar(treeView),
 		Children: []Widget{
 			HSplitter{
-				// AlwaysConsumeSpace: true,
-				// HandleWidth: 1,
 				Children: []Widget{
 					TreeView{
 						AssignTo: &treeView,
 						Model:    treeModel,
 						OnCurrentItemChanged: func() {
-							// dir := treeView.CurrentItem().(*Directory)
-							// if err := tableModel.SetDirPath(dir.Path()); err != nil {
+							item := treeView.CurrentItem().(*model.HostConfigItem)
+							bytes, err := ioutil.ReadFile("conf/hosts/" + item.Text() + ".hosts")
+							if err == nil {
+								hostConfigText.SetText(fmt.Sprintf("%s", bytes))
+							} else {
+								hostConfigText.SetText("")
+							}
 							// 	walk.MsgBox(
 							// 		mainWindow,
 							// 		"Error",
@@ -43,11 +49,12 @@ func InitMainWindow() {
 						},
 						StretchFactor: 1,
 						OnItemActivated: func() {
-							previousIndex := conf.GetConfig().CurrentHostIndex
+							current := treeView.CurrentItem().(*model.HostConfigItem)
+							previousIndex := conf.Config.CurrentHostIndex
 							for i := 0; i < treeModel.RootCount(); i++ {
 								item := treeModel.RootAt(i).(*model.HostConfigItem)
-								if item.Text() == treeView.CurrentItem().(*model.HostConfigItem).Text() {
-									conf.GetConfig().CurrentHostIndex = i
+								if item.Text() == current.Text() {
+									conf.Config.CurrentHostIndex = i
 									icon, _ := walk.NewBitmapFromFile("res/open.png")
 									item.Icon = icon
 								} else if previousIndex == i {
@@ -56,11 +63,24 @@ func InitMainWindow() {
 								}
 								treeModel.PublishItemChanged(item)
 							}
+							if err := ioutil.WriteFile("C:/Windows/System32/drivers/etc/hosts", []byte(hostConfigText.Text()), os.ModeExclusive); err != nil {
+								common.Error("Error writing to system hosts file: ", err)
+							}
+							configJSON, err := json.Marshal(conf.Config)
+							if err != nil {
+								common.Error("Error marshal json: ", err)
+							} else {
+								common.Info("configJSON: ", string(configJSON))
+								ioutil.WriteFile("conf/config.json", configJSON, os.ModeExclusive)
+							}
 						},
 					},
 					TextEdit{
 						AssignTo:      &hostConfigText,
 						StretchFactor: 3,
+						OnKeyUp: func(key walk.Key) {
+							common.Info("============================ Key up =================================")
+						},
 					},
 				},
 			},
@@ -75,25 +95,19 @@ func InitMainWindow() {
 		mw.SetIcon(icon)
 	}
 	setXY(mw)
-	hostConfigText.SetText("hhhhhhhhhhhhhhhh\r\nwwwwwwwwww\rwwww\nhhhhhhh")
-	// toolButton.SetBackground(nil)
-	// common.Info("toolbutton: ", toolButton)
-	// toolButton
-	// common.Info("treeview: ", treeView)
-	// bg, err := walk.NewSolidColorBrush(walk.RGB(0, 0, 255))
-	// if err != nil {
-	// 	common.Info("Error get color: ", err)
-	// } else {
-	// 	mw.SetBackground(bg)
-	// 	common.Info("setting bg", mw.Background())
-	// }
+
+	item := treeModel.RootAt(conf.Config.CurrentHostIndex)
+	if bytes, err := ioutil.ReadFile("conf/hosts/" + item.Text() + ".hosts"); err != nil {
+		common.Error("Error reading host config: ", err)
+	} else {
+		hostConfigText.SetText(fmt.Sprintf("%s", bytes))
+	}
 	bg, err := walk.NewSolidColorBrush(walk.RGB(218, 223, 230))
 	if err != nil {
 		common.Error("Error new color brush", err)
 	} else {
 		treeView.SetBackground(bg)
 	}
-
 	mw.Run()
 }
 
