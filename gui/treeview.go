@@ -12,15 +12,14 @@ import (
 	"github.com/tinycedar/lily/model"
 )
 
-func newTreeView(treeView **walk.TreeView, hostConfigText **walk.TextEdit) TreeView {
-	tv := *treeView
+func newTreeView(tv **walk.TreeView, hostConfigText **walk.TextEdit) TreeView {
 	treeModel := conf.Config.HostConfigModel
 	return TreeView{
-		AssignTo: &tv,
+		AssignTo: tv,
 		Model:    treeModel,
 		// click
 		OnCurrentItemChanged: func() {
-			current := tv.CurrentItem().(*model.HostConfigItem)
+			current := (*tv).CurrentItem().(*model.HostConfigItem)
 			if bytes, err := ioutil.ReadFile("conf/hosts/" + current.Text() + ".hosts"); err == nil {
 				(*hostConfigText).SetText(string(bytes))
 			} else {
@@ -30,7 +29,7 @@ func newTreeView(treeView **walk.TreeView, hostConfigText **walk.TextEdit) TreeV
 		StretchFactor: 1,
 		// double click
 		OnItemActivated: func() {
-			current := tv.CurrentItem().(*model.HostConfigItem)
+			current := (*tv).CurrentItem().(*model.HostConfigItem)
 			previousIndex := conf.Config.CurrentHostIndex
 			for i := 0; i < treeModel.RootCount(); i++ {
 				item := treeModel.RootAt(i).(*model.HostConfigItem)

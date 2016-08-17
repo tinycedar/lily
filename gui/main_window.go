@@ -13,7 +13,7 @@ import (
 
 func InitMainWindow() {
 	var mw *walk.MainWindow
-	var treeView = new(walk.TreeView)
+	var treeView *walk.TreeView
 	var hostConfigText *walk.TextEdit
 	if err := (MainWindow{
 		AssignTo: &mw,
