@@ -11,6 +11,7 @@ import (
 	"github.com/tinycedar/lily/conf"
 )
 
+// InitMainWindow initialize main window
 func InitMainWindow() {
 	var mw *walk.MainWindow
 	var treeView *walk.TreeView
@@ -40,22 +41,16 @@ func InitMainWindow() {
 		common.Error("Error creating main window: ", err)
 		os.Exit(-1)
 	}
+	setWindowIcon(mw)
 	setXY(mw)
-	setBackground(treeView)
+	setTreeViewBackground(treeView)
+	showCurrentItem(hostConfigText)
+	mw.Run()
+}
+
+func setWindowIcon(mw *walk.MainWindow) {
 	icon, _ := walk.NewIconFromFile("res/lily.ico")
 	mw.SetIcon(icon)
-
-	currentItem := conf.Config.HostConfigModel.RootAt(conf.Config.CurrentHostIndex)
-	if currentItem == nil {
-		common.Error("Invalid CurrentHostIndex in config.json, cannot find the specific hosts")
-	} else {
-		if bytes, err := ioutil.ReadFile("conf/hosts/" + currentItem.Text() + ".hosts"); err != nil {
-			common.Error("Error reading host config: ", err)
-		} else {
-			hostConfigText.SetText(string(bytes))
-		}
-	}
-	mw.Run()
 }
 
 func setXY(mw *walk.MainWindow) {
@@ -65,11 +60,30 @@ func setXY(mw *walk.MainWindow) {
 	mw.SetY((int(win.GetDeviceCaps(hDC, win.VERTRES)) - mw.Height()) / 2)
 }
 
-func setBackground(treeView *walk.TreeView) {
+func setTreeViewBackground(treeView *walk.TreeView) {
 	bg, err := walk.NewSolidColorBrush(walk.RGB(218, 223, 230))
 	if err != nil {
 		common.Error("Error new color brush", err)
 	} else {
 		treeView.SetBackground(bg)
+	}
+}
+
+func showCurrentItem(hostConfigText *walk.TextEdit) {
+	index := conf.Config.CurrentHostIndex
+	model := conf.Config.HostConfigModel
+	if index < 0 || len(model.Roots) == 0 {
+
+		return
+	}
+	current := model.RootAt(index)
+	if current == nil {
+		common.Error("Invalid CurrentHostIndex in config.json, cannot find the specific hosts")
+	} else {
+		if bytes, err := ioutil.ReadFile("conf/hosts/" + current.Text() + ".hosts"); err != nil {
+			common.Error("Error reading host config: ", err)
+		} else {
+			hostConfigText.SetText(string(bytes))
+		}
 	}
 }

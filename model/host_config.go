@@ -8,7 +8,9 @@ type HostConfigModel struct {
 }
 
 func NewHostConfigModel() *HostConfigModel {
-	return new(HostConfigModel)
+	model := new(HostConfigModel)
+	model.Roots = []*HostConfigItem{}
+	return model
 }
 
 func (m *HostConfigModel) Append(item *HostConfigItem) {

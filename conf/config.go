@@ -55,14 +55,18 @@ func loadHosts() {
 		common.Error("Fail to read files of conf/hosts directory: ", err)
 		panic(err)
 	}
+	index := Config.CurrentHostIndex
 	for i, f := range hosts {
 		temp := strings.Split(f.Name(), ".hosts")
 		if len(temp) > 0 {
 			icon := common.IconMap[common.ICON_NEW]
-			if i == Config.CurrentHostIndex {
+			if i == index {
 				icon = common.IconMap[common.ICON_OPEN]
 			}
 			Config.HostConfigModel.Append(&model.HostConfigItem{Name: temp[0], Icon: icon})
 		}
+	}
+	if index < 0 || index >= len(Config.HostConfigModel.Roots) {
+		Config.CurrentHostIndex = -1
 	}
 }
