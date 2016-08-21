@@ -27,13 +27,7 @@ func InitMainWindow() {
 			HSplitter{
 				Children: []Widget{
 					newTreeView(&treeView, &hostConfigText),
-					TextEdit{
-						AssignTo:      &hostConfigText,
-						StretchFactor: 3,
-						OnKeyUp: func(key walk.Key) {
-							common.Info("============================ Key up =================================")
-						},
-					},
+					newTextEdit(&hostConfigText),
 				},
 			},
 		},
@@ -70,10 +64,9 @@ func setTreeViewBackground(treeView *walk.TreeView) {
 }
 
 func showCurrentItem(hostConfigText *walk.TextEdit) {
-	index := conf.Config.CurrentHostIndex
 	model := conf.Config.HostConfigModel
+	index := conf.Config.CurrentHostIndex
 	if index < 0 || len(model.Roots) == 0 {
-
 		return
 	}
 	current := model.RootAt(index)
