@@ -37,8 +37,13 @@ func InitMainWindow() {
 	}
 	setWindowIcon(mw)
 	setXY(mw)
+	newNotify(mw)
 	setTreeViewBackground(treeView)
 	showCurrentItem(hostConfigText)
+	mw.Closing().Attach(func(canceled *bool, reason walk.CloseReason) {
+		*canceled = true
+		mw.Hide()
+	})
 	mw.Run()
 }
 
