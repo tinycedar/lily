@@ -17,7 +17,10 @@ func getBrowserProcessMap() map[uint32]string {
 			if processName == "" {
 				continue
 			}
-			for _, name := range []string{"chrome.exe", "iexplore.exe", "microsoftedge.exe", "microsoftedgecp.exe"} {
+			for _, name := range []string{
+				"chrome.exe", "firefox.exe", "opera.exe",
+				"iexplore.exe", "microsoftedge.exe", "microsoftedgecp.exe",
+				"sogouexplorer.exe", "qqbrowser.exe", "360se.exe", "360chrome.exe", "liebao.exe", "maxthon.exe", "ucbrowser.exe"} {
 				if strings.HasPrefix(processName, name) {
 					pidMap[v] = name
 				}
