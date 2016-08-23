@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -11,6 +10,7 @@ import (
 	"golang.org/x/sys/windows/registry"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/tinycedar/lily/common"
 	"github.com/tinycedar/lily/gui"
 )
 
@@ -50,25 +50,25 @@ func openRegistry() {
 		log.Fatal(err)
 	}
 	defer k.Close()
-	fmt.Println(k.SetDWordValue("DnsCacheEnabled", 0x1))
-	fmt.Println(k.SetDWordValue("DnsCacheTimeout", 0x1))
-	fmt.Println(k.SetDWordValue("ServerInfoTimeOut", 0x1))
+	k.SetDWordValue("DnsCacheEnabled", 0x1)
+	k.SetDWordValue("DnsCacheTimeout", 0x1)
+	k.SetDWordValue("ServerInfoTimeOut", 0x1)
 	if s, _, err := k.GetIntegerValue("DnsCacheEnabled"); err != nil {
-		fmt.Println(err)
+		common.Error("Fail to get registry: DnsCacheEnabled", err)
 	} else {
-		fmt.Printf("DnsCacheEnabled is %q\n", s)
+		common.Info("DnsCacheEnabled is %q\n", s)
 	}
 
 	if s, _, err := k.GetIntegerValue("DnsCacheTimeout"); err != nil {
-		fmt.Println(err)
+		common.Error("Fail to get registry: DnsCacheTimeout", err)
 	} else {
-		fmt.Printf("DnsCacheTimeout is %q\n", s)
+		common.Info("DnsCacheTimeout is %q\n", s)
 	}
 
 	if s, _, err := k.GetIntegerValue("ServerInfoTimeOut"); err != nil {
-		fmt.Println(err)
+		common.Error("Fail to get registry: ServerInfoTimeOut", err)
 	} else {
-		fmt.Printf("ServerInfoTimeOut is %q\n", s)
+		common.Info("ServerInfoTimeOut is %q\n", s)
 	}
 }
 
@@ -76,6 +76,8 @@ func process() {
 	// hostConfigMap := readFile()
 	browserProcessMap := getBrowserProcessMap()
 	table := getTCPTable()
+	// group by process
+	tcpRowByProcessNameMap := make(map[string][]*MIB_TCPROW2)
 	for i := uint32(0); i < uint32(table.dwNumEntries); i++ {
 		row := table.table[i]
 		if row.dwOwningPid <= 0 {
@@ -85,11 +87,32 @@ func process() {
 		// if _, ok := hostConfigMap[remoteAddr]; ok {
 		// fmt.Println("====== remoteAddr= ", remoteAddr, "\tbrowserProcessMap = ", browserProcessMap, "\tpid = ", row.dwOwningPid)
 		if processName, ok := browserProcessMap[uint32(row.dwOwningPid)]; ok {
-			fmt.Println("Closing pid = ", row.dwOwningPid, "\tprocess= ", processName)
-			CloseTCPEntry(row)
+			pidSlice, ok := tcpRowByProcessNameMap[processName]
+			if !ok {
+				pidSlice = []*MIB_TCPROW2{}
+			}
+			pidSlice = append(pidSlice, row)
+			tcpRowByProcessNameMap[processName] = pidSlice
 		}
 		// }
 		// fmt.Printf("\t%-6d\t%s:%-16d\t%s:%-16d\t%d\t%d\n", row.dwState, row.displayIP(row.dwLocalAddr), row.displayPort(row.dwLocalPort), row.displayIP(row.dwRemoteAddr), row.displayPort(row.dwRemotePort), row.dwOwningPid, row.dwOffloadState)
+	}
+	common.Info("==================== Running browser =====================")
+	for k := range tcpRowByProcessNameMap {
+		common.Info("%v", k)
+	}
+	common.Info("================== Execute Result  =====================")
+	for processName, rowSlice := range tcpRowByProcessNameMap {
+		success := true
+		for _, row := range rowSlice {
+			if err := CloseTCPEntry(row); err != nil {
+				success = false
+				common.Error("Fail to close TCP connections: %s, %v\n", processName, row.dwOwningPid)
+			}
+		}
+		if success {
+			common.Info("Succeed to close TCP connections: %s\n", processName)
+		}
 	}
 }
 

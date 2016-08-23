@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"syscall"
 	"time"
 	"unsafe"
@@ -26,10 +25,6 @@ func getBrowserProcessMap() map[uint32]string {
 				}
 			}
 		}
-	}
-	fmt.Println("================== Running browser pid list =====================")
-	for k, v := range pidMap {
-		fmt.Printf("%v\t%v\n", k, v)
 	}
 	return pidMap
 }

@@ -118,11 +118,10 @@ func getTCPTable() *MIB_TCPTABLE2 {
 	return table
 }
 
-func CloseTCPEntry(row *MIB_TCPROW2) {
+func CloseTCPEntry(row *MIB_TCPROW2) error {
 	row.dwState = 12
 	if err, _, _ := syscall.NewLazyDLL("Iphlpapi.dll").NewProc("SetTcpEntry").Call(uintptr(unsafe.Pointer(row))); err != 0 {
-		fmt.Printf("Error calling SetTcpEntry: %v\n", syscall.Errno(err))
-	} else {
-		fmt.Println("Succeed to call setTcpEntry: ", row)
+		return syscall.Errno(err)
 	}
+	return nil
 }
