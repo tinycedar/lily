@@ -12,7 +12,6 @@ func newNotify(mw *walk.MainWindow) {
 	if err != nil {
 		common.Error("Error invoking NewNotifyIcon", err)
 	}
-	// defer ni.Dispose()
 	icon, _ := walk.NewIconFromFile("res/lily.ico")
 	if err := ni.SetIcon(icon); err != nil {
 		common.Error("Error setting notify icon", err)
@@ -22,7 +21,11 @@ func newNotify(mw *walk.MainWindow) {
 	}
 	ni.MouseUp().Attach(func(x, y int, button walk.MouseButton) {
 		if button == walk.LeftButton {
-			mw.Show()
+			if !mw.Visible() {
+				mw.Show()
+			} else {
+				//TODO
+			}
 		}
 		// if err := ni.ShowCustom(
 		// 	"Walk NotifyIcon Example",
@@ -34,7 +37,10 @@ func newNotify(mw *walk.MainWindow) {
 	if err := exitAction.SetText("退出"); err != nil {
 		common.Error("Error setting exitAction text", err)
 	}
-	exitAction.Triggered().Attach(func() { walk.App().Exit(0) })
+	exitAction.Triggered().Attach(func() {
+		defer ni.Dispose()
+		walk.App().Exit(0)
+	})
 	if err := ni.ContextMenu().Actions().Add(exitAction); err != nil {
 		common.Error("Error Adding exitAction", err)
 	}
