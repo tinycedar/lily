@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/lxn/walk"
 	. "github.com/lxn/walk/declarative"
 	"github.com/tinycedar/lily/common"
 	"github.com/tinycedar/lily/conf"
@@ -13,24 +12,25 @@ import (
 	"github.com/tinycedar/lily/model"
 )
 
-func newTreeView(tv **walk.TreeView, hostConfigText **walk.TextEdit) TreeView {
+func newTreeView() TreeView {
 	treeModel := conf.Config.HostConfigModel
 	return TreeView{
-		AssignTo: tv,
+		AssignTo: &(context.treeView),
 		Model:    treeModel,
 		// click
 		OnCurrentItemChanged: func() {
-			current := (*tv).CurrentItem().(*model.HostConfigItem)
+			context.deleteButton.SetEnabled(true)
+			current := context.treeView.CurrentItem().(*model.HostConfigItem)
 			if bytes, err := ioutil.ReadFile("conf/hosts/" + current.Text() + ".hosts"); err == nil {
-				(*hostConfigText).SetText(string(bytes))
+				context.hostConfigText.SetText(string(bytes))
 			} else {
-				(*hostConfigText).SetText("")
+				context.hostConfigText.SetText("")
 			}
 		},
 		StretchFactor: 1,
 		// double click
 		OnItemActivated: func() {
-			current := (*tv).CurrentItem().(*model.HostConfigItem)
+			current := context.treeView.CurrentItem().(*model.HostConfigItem)
 			previousIndex := conf.Config.CurrentHostIndex
 			for i := 0; i < treeModel.RootCount(); i++ {
 				item := treeModel.RootAt(i).(*model.HostConfigItem)
@@ -42,7 +42,7 @@ func newTreeView(tv **walk.TreeView, hostConfigText **walk.TextEdit) TreeView {
 				}
 				treeModel.PublishItemChanged(item)
 			}
-			if err := ioutil.WriteFile("C:/Windows/System32/drivers/etc/hosts", []byte((*hostConfigText).Text()), os.ModeExclusive); err != nil {
+			if err := ioutil.WriteFile("C:/Windows/System32/drivers/etc/hosts", []byte(context.hostConfigText.Text()), os.ModeExclusive); err != nil {
 				common.Error("Error writing to system hosts file: ", err)
 			}
 			configJSON, err := json.Marshal(conf.Config)

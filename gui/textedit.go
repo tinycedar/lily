@@ -6,9 +6,9 @@ import (
 	"github.com/tinycedar/lily/common"
 )
 
-func newTextEdit(te **walk.TextEdit) TextEdit {
+func newTextEdit() TextEdit {
 	return TextEdit{
-		AssignTo:      te,
+		AssignTo:      &(context.hostConfigText),
 		StretchFactor: 3,
 		OnKeyUp: func(key walk.Key) {
 			common.Info("=========== Key up ===========")

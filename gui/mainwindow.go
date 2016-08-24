@@ -11,23 +11,30 @@ import (
 	"github.com/tinycedar/lily/conf"
 )
 
+var context = new(widgetContext)
+
+type widgetContext struct {
+	mw             *walk.MainWindow
+	treeView       *walk.TreeView
+	hostConfigText *walk.TextEdit
+	addButton      *walk.Action
+	deleteButton   *walk.Action
+}
+
 // InitMainWindow initialize main window
 func InitMainWindow() {
-	var mw *walk.MainWindow
-	var treeView *walk.TreeView
-	var hostConfigText *walk.TextEdit
 	if err := (MainWindow{
-		AssignTo: &mw,
+		AssignTo: &(context.mw),
 		Title:    "Lily",
 		MinSize:  Size{720, 500},
 		Layout:   VBox{},
 		// MenuItems: newMenuItems(mw),
-		ToolBar: newToolBar(treeView),
+		ToolBar: newToolBar(),
 		Children: []Widget{
 			HSplitter{
 				Children: []Widget{
-					newTreeView(&treeView, &hostConfigText),
-					newTextEdit(&hostConfigText),
+					newTreeView(),
+					newTextEdit(),
 				},
 			},
 		},
@@ -35,16 +42,17 @@ func InitMainWindow() {
 		common.Error("Error creating main window: %v", err)
 		os.Exit(-1)
 	}
-	setWindowIcon(mw)
-	setXY(mw)
-	newNotify(mw)
-	setTreeViewBackground(treeView)
-	showCurrentItem(hostConfigText)
-	mw.Closing().Attach(func(canceled *bool, reason walk.CloseReason) {
+	setWindowIcon(context.mw)
+	setXY(context.mw)
+	newNotify(context.mw)
+	setTreeViewBackground(context.treeView)
+	showCurrentItem(context.hostConfigText)
+	context.mw.Closing().Attach(func(canceled *bool, reason walk.CloseReason) {
 		*canceled = true
-		mw.Hide()
+		context.mw.Hide()
 	})
-	mw.Run()
+	(*context.deleteButton).SetEnabled(false)
+	context.mw.Run()
 }
 
 func setWindowIcon(mw *walk.MainWindow) {
