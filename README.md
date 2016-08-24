@@ -1,5 +1,5 @@
 # lily
-Host(s) manager which will taken effect immediately on save
+System hosts manager which will taken effect immediately on switch
 
 =====
 go build -ldflags="-H windowsgui"
