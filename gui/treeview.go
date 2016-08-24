@@ -34,7 +34,7 @@ func newTreeView() TreeView {
 			previousIndex := conf.Config.CurrentHostIndex
 			for i := 0; i < treeModel.RootCount(); i++ {
 				item := treeModel.RootAt(i).(*model.HostConfigItem)
-				if item.Text() == current.Text() {
+				if item == current {
 					conf.Config.CurrentHostIndex = i
 					item.Icon = common.IconMap[common.ICON_OPEN]
 				} else if previousIndex == i {

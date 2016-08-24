@@ -2,6 +2,7 @@ package gui
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/lxn/walk"
 	. "github.com/lxn/walk/declarative"
@@ -57,8 +58,18 @@ func newToolBar() ToolBar {
 					message := fmt.Sprintf("确定要删除hosts '%s'?", current.Text())
 					ret := walk.MsgBox(context.mw, "删除hosts", message, walk.MsgBoxYesNo)
 					if ret == win.IDYES {
-						common.Info("Deleting... %v", ret)
-						// conf.Config.HostConfigModel.RemoveAll()
+						if !conf.Config.HostConfigModel.Remove(current) {
+							common.Error("Fail to remove current item: %v", current.Text())
+							// TODO notify user
+							return
+						}
+						file := "conf/hosts/" + current.Text() + ".hosts"
+						if err := os.Remove(file); err != nil {
+							common.Error("Fail to delete file: %s", file)
+							// TODO notify user
+							return
+						}
+						common.Info("Succeed to delete file: %s", file)
 					}
 					// 	var dlg *walk.Dialog
 					// 	Dialog{
