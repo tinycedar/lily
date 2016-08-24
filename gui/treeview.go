@@ -9,6 +9,7 @@ import (
 	. "github.com/lxn/walk/declarative"
 	"github.com/tinycedar/lily/common"
 	"github.com/tinycedar/lily/conf"
+	"github.com/tinycedar/lily/core"
 	"github.com/tinycedar/lily/model"
 )
 
@@ -50,6 +51,8 @@ func newTreeView(tv **walk.TreeView, hostConfigText **walk.TextEdit) TreeView {
 			} else {
 				ioutil.WriteFile("conf/config.json", configJSON, os.ModeExclusive)
 			}
+			// fire hosts switch
+			core.FireHostsSwitch()
 		},
 	}
 }

@@ -8,16 +8,37 @@ import (
 )
 
 const (
-	system_hosts = "C:/Windows/System32/drivers/etc/hosts"
+	systemHosts = "C:/Windows/System32/drivers/etc/hosts"
 )
 
-func InitSystemHostsWatcher() {
+var batcher *Batcher
+
+func FireHostsSwitch() {
+	common.Info("Start to fire hosts switch. batcher = %v", batcher)
+	if batcher != nil {
+		batcher.Close()
+	}
+	process()
+	batcher = initSystemHostsWatcher()
+	go startSystemHostsWatcher()
+	common.Info("End of fire hosts switch. batcher = %v", batcher)
+}
+
+func initSystemHostsWatcher() *Batcher {
 	batcher, err := New(time.Millisecond * 300)
 	if err != nil {
 		common.Error("Fail to initialize batcher")
 	}
-	if err = batcher.Add(system_hosts); err != nil {
-		common.Error("Fail to add system hosts: %s", system_hosts)
+	if err = batcher.Add(systemHosts); err != nil {
+		common.Error("Fail to add system hosts: %s", systemHosts)
+	}
+	return batcher
+}
+
+func startSystemHostsWatcher() {
+	if batcher == nil {
+		common.Error("Fail to start system hosts watcher, watcher is nil")
+		return
 	}
 	for events := range batcher.Events {
 		for _, event := range events {
@@ -28,6 +49,7 @@ func InitSystemHostsWatcher() {
 			}
 		}
 	}
+	// never return
 }
 
 func process() {

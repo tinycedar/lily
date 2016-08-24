@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	go core.OpenRegistry()
-	go core.InitSystemHostsWatcher()
+	// go core.OpenRegistry()
+	go core.FireHostsSwitch()
 	gui.InitMainWindow()
 }
