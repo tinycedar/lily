@@ -6,6 +6,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
+// https://github.com/spf13/hugo/blob/master/watcher/batcher.go
 type Batcher struct {
 	*fsnotify.Watcher
 	interval time.Duration

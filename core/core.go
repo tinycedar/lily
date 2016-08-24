@@ -9,13 +9,13 @@ import (
 )
 
 const (
-	hostFile = "C:/Windows/System32/drivers/etc/hosts"
+	system_hosts = "C:/Windows/System32/drivers/etc/hosts"
 )
 
 func NewSystemHostsWatcher() {
 	batcher, err := New(time.Millisecond * 300)
 	if err == nil {
-		if err = batcher.Add(hostFile); err != nil {
+		if err = batcher.Add(system_hosts); err != nil {
 			log.Fatal(err)
 		}
 		for events := range batcher.Events {
@@ -74,3 +74,32 @@ func process() {
 		}
 	}
 }
+
+// func readFile() map[string]string {
+// 	hostConfigMap := make(map[string]string)
+// 	file, err := os.Open(system_hosts)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer file.Close()
+// 	scanner := bufio.NewScanner(file)
+// 	// fmt.Println("============================== Reading file begin =====================================")
+// 	for scanner.Scan() {
+// 		line := strings.TrimSpace(scanner.Text())
+// 		if line != "" && !strings.HasPrefix(line, "#") {
+// 			config := strings.Split(scanner.Text(), " ")
+// 			if len(config) != 2 {
+// 				config = strings.Split(scanner.Text(), "\t")
+// 			}
+// 			if len(config) == 2 {
+// 				// fmt.Println(config[1], "\t", config[0])
+// 				hostConfigMap[config[0]] = config[1]
+// 			}
+// 		}
+// 	}
+// 	if err := scanner.Err(); err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	// fmt.Println("============================== Reading file end =====================================")
+// 	return hostConfigMap
+// }
