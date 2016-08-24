@@ -104,11 +104,11 @@ func getTCPTable() *MIB_TCPTABLE2 {
 	getTCPTable2 := syscall.NewLazyDLL("Iphlpapi.dll").NewProc("GetTcpTable2")
 	var n uint32
 	if err, _, _ := getTCPTable2.Call(uintptr(unsafe.Pointer(&MIB_TCPTABLE2{})), uintptr(unsafe.Pointer(&n)), 1); syscall.Errno(err) != syscall.ERROR_INSUFFICIENT_BUFFER {
-		common.Error("Error calling GetTcpTable2: %v\n", syscall.Errno(err))
+		common.Error("Error calling GetTcpTable2: %v", syscall.Errno(err))
 	}
 	b := make([]byte, n)
 	if err, _, _ := getTCPTable2.Call(uintptr(unsafe.Pointer(&b[0])), uintptr(unsafe.Pointer(&n)), 1); err != 0 {
-		common.Error("Error calling GetTcpTable2: %v\n", syscall.Errno(err))
+		common.Error("Error calling GetTcpTable2: %v", syscall.Errno(err))
 	}
 	const (
 		// netstat -ano | findstr 202.89.233.104

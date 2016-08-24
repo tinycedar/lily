@@ -16,19 +16,19 @@ func OpenRegistry() {
 	k.SetDWordValue("DnsCacheTimeout", 0x1)
 	k.SetDWordValue("ServerInfoTimeOut", 0x1)
 	if s, _, err := k.GetIntegerValue("DnsCacheEnabled"); err != nil {
-		common.Error("Fail to get registry: DnsCacheEnabled", err)
+		common.Error("Fail to get registry: DnsCacheEnabled: %v", err)
 	} else {
 		common.Info("DnsCacheEnabled is %q\n", s)
 	}
 
 	if s, _, err := k.GetIntegerValue("DnsCacheTimeout"); err != nil {
-		common.Error("Fail to get registry: DnsCacheTimeout", err)
+		common.Error("Fail to get registry: DnsCacheTimeout: %v", err)
 	} else {
 		common.Info("DnsCacheTimeout is %q\n", s)
 	}
 
 	if s, _, err := k.GetIntegerValue("ServerInfoTimeOut"); err != nil {
-		common.Error("Fail to get registry: ServerInfoTimeOut", err)
+		common.Error("Fail to get registry: ServerInfoTimeOut: %v", err)
 	} else {
 		common.Info("ServerInfoTimeOut is %q\n", s)
 	}

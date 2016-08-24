@@ -37,7 +37,7 @@ func loadConfig() {
 	}
 	Config.HostConfigModel = model.NewHostConfigModel()
 	if bytes, err := ioutil.ReadFile("conf/config.json"); err != nil || json.Unmarshal(bytes, Config) != nil {
-		common.Error("Fail to read and unmarshal config.json: ", err)
+		common.Error("Fail to read and unmarshal config.json: %v", err)
 	}
 }
 
@@ -45,14 +45,14 @@ func loadHosts() {
 	hostsDir, err := os.Open("conf/hosts")
 	if err != nil {
 		//TODO define error and notify user
-		common.Error("Fail to open conf/hosts directory: ", err)
+		common.Error("Fail to open conf/hosts directory: %v", err)
 		panic(err)
 	}
 	defer hostsDir.Close()
 	hosts, err := hostsDir.Readdir(-1)
 	if err != nil {
 		//TODO define error and notify user
-		common.Error("Fail to read files of conf/hosts directory: ", err)
+		common.Error("Fail to read files of conf/hosts directory: %v", err)
 		panic(err)
 	}
 	index := Config.CurrentHostIndex

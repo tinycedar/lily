@@ -47,7 +47,7 @@ func newTreeView(tv **walk.TreeView, hostConfigText **walk.TextEdit) TreeView {
 			}
 			configJSON, err := json.Marshal(conf.Config)
 			if err != nil {
-				common.Error("Error marshal json: ", err)
+				common.Error("Error marshal json: %v", err)
 			} else {
 				ioutil.WriteFile("conf/config.json", configJSON, os.ModeExclusive)
 			}

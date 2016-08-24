@@ -28,5 +28,8 @@ launch.json
 
 info.log
 error.log
+/conf/hosts/localhost.hosts
 /conf/hosts/hst_*.hosts
+/conf/hosts/pre*.hosts
 /conf/config.json
+.project

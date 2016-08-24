@@ -14,14 +14,14 @@ const (
 var batcher *Batcher
 
 func FireHostsSwitch() {
-	common.Info("Start to fire hosts switch. batcher = %v", batcher)
+	common.Info("Start to fire hosts switch. batcher = %p", batcher)
 	if batcher != nil {
 		batcher.Close()
 	}
 	process()
 	batcher = initSystemHostsWatcher()
 	go startSystemHostsWatcher()
-	common.Info("End of fire hosts switch. batcher = %v", batcher)
+	common.Info("End of fire hosts switch. batcher = %p", batcher)
 }
 
 func initSystemHostsWatcher() *Batcher {
@@ -113,7 +113,7 @@ func process() {
 // 				config = strings.Split(scanner.Text(), "\t")
 // 			}
 // 			if len(config) == 2 {
-// 				// common.Info(config[1], "\t", config[0])
+// 				// common.Info("%v\t%v", config[1], config[0])
 // 				hostConfigMap[config[0]] = config[1]
 // 			}
 // 		}

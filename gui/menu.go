@@ -36,7 +36,7 @@ func newMenuItems(mw *walk.MainWindow) []MenuItem {
 					// OnTriggered: mw.showAboutBoxAction_Triggered,
 					OnTriggered: func() {
 						// walk.MsgBox(mw, "About", "Developed by @tinycedar", walk.MsgBoxIconInformation)
-						common.Info("mw: ", mw == nil)
+						common.Info("mw: %v", mw == nil)
 					},
 				},
 			},

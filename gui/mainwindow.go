@@ -32,7 +32,7 @@ func InitMainWindow() {
 			},
 		},
 	}).Create(); err != nil {
-		common.Error("Error creating main window: ", err)
+		common.Error("Error creating main window: %v", err)
 		os.Exit(-1)
 	}
 	setWindowIcon(mw)
@@ -62,7 +62,7 @@ func setXY(mw *walk.MainWindow) {
 func setTreeViewBackground(treeView *walk.TreeView) {
 	bg, err := walk.NewSolidColorBrush(walk.RGB(218, 223, 230))
 	if err != nil {
-		common.Error("Error new color brush", err)
+		common.Error("Error new color brush: %v", err)
 	} else {
 		treeView.SetBackground(bg)
 	}
@@ -79,7 +79,7 @@ func showCurrentItem(hostConfigText *walk.TextEdit) {
 		common.Error("Invalid CurrentHostIndex in config.json, cannot find the specific hosts")
 	} else {
 		if bytes, err := ioutil.ReadFile("conf/hosts/" + current.Text() + ".hosts"); err != nil {
-			common.Error("Error reading host config: ", err)
+			common.Error("Error reading host config: %v", err)
 		} else {
 			hostConfigText.SetText(string(bytes))
 		}
