@@ -1,8 +1,6 @@
 package gui
 
 import (
-	"log"
-
 	"github.com/lxn/walk"
 	"github.com/tinycedar/lily/common"
 )
@@ -17,7 +15,7 @@ func newNotify(mw *walk.MainWindow) {
 		common.Error("Error setting notify icon", err)
 	}
 	if err := ni.SetToolTip("Click for info or use the context menu to exit."); err != nil {
-		log.Fatal(err)
+		common.Error("Fail to set tooltip", err)
 	}
 	ni.MouseUp().Attach(func(x, y int, button walk.MouseButton) {
 		if button == walk.LeftButton {
@@ -30,7 +28,7 @@ func newNotify(mw *walk.MainWindow) {
 		// if err := ni.ShowCustom(
 		// 	"Walk NotifyIcon Example",
 		// 	"There are multiple ShowX methods sporting different icons."); err != nil {
-		// 	log.Fatal(err)
+		// 	common.Error("Fail to show custom notify: %v", err)
 		// }
 	})
 	exitAction := walk.NewAction()

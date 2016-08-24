@@ -7,6 +7,6 @@ import (
 
 func main() {
 	go core.OpenRegistry()
-	go core.NewSystemHostsWatcher()
+	go core.InitSystemHostsWatcher()
 	gui.InitMainWindow()
 }

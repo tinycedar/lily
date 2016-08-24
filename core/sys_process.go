@@ -4,6 +4,7 @@ import (
 	"syscall"
 	"time"
 	"unsafe"
+
 	// "github.com/tinycedar/lily/common"
 	"strings"
 )
@@ -51,7 +52,7 @@ func openProcess(pid uint32) string {
 	var dwDesiredAccess uint32 = 0x0400 | 0x0010
 	openPid, _, _ := procOpenProcess.Call(uintptr(unsafe.Pointer(&dwDesiredAccess)), 0, uintptr(pid))
 	if openPid <= 0 {
-		// fmt.Printf("Error: %v Pid = %v\n", errorStr, pid)
+		// common.Info("Error: %v Pid = %v\n", errorStr, pid)
 		return ""
 	}
 	return getProcessName2(openPid)
@@ -85,6 +86,6 @@ func getProcessName2(pid uintptr) string {
 
 func metrics(funcName string) func(now time.Time) {
 	return func(now time.Time) {
-		// fmt.Printf("Processing [%v] costs %v\n", funcName, time.Since(now))
+		// common.Info("Processing [%v] costs %v\n", funcName, time.Since(now))
 	}
 }

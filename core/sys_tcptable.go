@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"syscall"
 	"unsafe"
+
+	"github.com/tinycedar/lily/common"
 )
 
 var bigEndian = binary.LittleEndian
@@ -78,12 +80,12 @@ type MIB_TCPTABLE2 struct {
 }
 
 func (t *MIB_TCPTABLE2) String() string {
-	fmt.Println("================  tcp table ======================= ", t.dwNumEntries)
+	common.Info("================  tcp table ======================= %v", t.dwNumEntries)
 	for i := uint32(0); i < uint32(t.dwNumEntries); i++ {
 		row := t.table[i]
-		fmt.Println(row, "\t", row.displayIP(row.dwRemoteAddr), ":", row.displayPort(row.dwRemotePort))
+		common.Info("%v\t%v:%v", row, row.displayIP(row.dwRemoteAddr), row.displayPort(row.dwRemotePort))
 	}
-	fmt.Println("================  tcp table end =======================")
+	common.Info("================  tcp table end =======================")
 	return "======================================="
 }
 
@@ -102,11 +104,11 @@ func getTCPTable() *MIB_TCPTABLE2 {
 	getTCPTable2 := syscall.NewLazyDLL("Iphlpapi.dll").NewProc("GetTcpTable2")
 	var n uint32
 	if err, _, _ := getTCPTable2.Call(uintptr(unsafe.Pointer(&MIB_TCPTABLE2{})), uintptr(unsafe.Pointer(&n)), 1); syscall.Errno(err) != syscall.ERROR_INSUFFICIENT_BUFFER {
-		fmt.Printf("Error calling GetTcpTable2: %v\n", syscall.Errno(err))
+		common.Error("Error calling GetTcpTable2: %v\n", syscall.Errno(err))
 	}
 	b := make([]byte, n)
 	if err, _, _ := getTCPTable2.Call(uintptr(unsafe.Pointer(&b[0])), uintptr(unsafe.Pointer(&n)), 1); err != 0 {
-		fmt.Printf("Error calling GetTcpTable2: %v\n", syscall.Errno(err))
+		common.Error("Error calling GetTcpTable2: %v\n", syscall.Errno(err))
 	}
 	const (
 		// netstat -ano | findstr 202.89.233.104

@@ -30,13 +30,19 @@ func openFile(file string) (*os.File, error) {
 }
 
 func Info(format string, v ...interface{}) {
-	info := fmt.Sprintf(format, v...)
-	log.Printf(info)
-	infoLogger.Println(info)
+	message := fmt.Sprintf(format, v...)
+	log.Println(message)
+	infoLogger.Println(message)
 }
 
 func Error(format string, v ...interface{}) {
-	info := fmt.Sprintf(format, v...)
-	log.Printf(info)
-	errorLogger.Println(info)
+	message := fmt.Sprintf(format, v...)
+	log.Println(message)
+	errorLogger.Println(message)
+}
+
+func Fatal(format string, v ...interface{}) {
+	message := fmt.Sprintf(format, v...)
+	errorLogger.Println(message)
+	log.Fatalln(message)
 }

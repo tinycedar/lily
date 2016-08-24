@@ -1,8 +1,6 @@
 package core
 
 import (
-	"log"
-
 	"github.com/tinycedar/lily/common"
 	"golang.org/x/sys/windows/registry"
 )
@@ -11,7 +9,7 @@ import (
 func OpenRegistry() {
 	k, err := registry.OpenKey(registry.CURRENT_USER, `Software\Microsoft\Windows\CurrentVersion\Internet Settings`, registry.ALL_ACCESS)
 	if err != nil {
-		log.Fatal(err)
+		common.Error("Error Open registry key: %v", err)
 	}
 	defer k.Close()
 	k.SetDWordValue("DnsCacheEnabled", 0x1)

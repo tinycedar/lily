@@ -1,7 +1,6 @@
 package core
 
 import (
-	"log"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -12,20 +11,20 @@ const (
 	system_hosts = "C:/Windows/System32/drivers/etc/hosts"
 )
 
-func NewSystemHostsWatcher() {
+func InitSystemHostsWatcher() {
 	batcher, err := New(time.Millisecond * 300)
-	if err == nil {
-		if err = batcher.Add(system_hosts); err != nil {
-			log.Fatal(err)
-		}
-		for events := range batcher.Events {
-			// fmt.Println("events: ", events)
-			for _, event := range events {
-				if event.Op&fsnotify.Write == fsnotify.Write {
-					log.Println("modified file:", event)
-					process()
-					break
-				}
+	if err != nil {
+		common.Error("Fail to initialize batcher")
+	}
+	if err = batcher.Add(system_hosts); err != nil {
+		common.Error("Fail to add system hosts: %s", system_hosts)
+	}
+	for events := range batcher.Events {
+		for _, event := range events {
+			if event.Op&fsnotify.Write == fsnotify.Write {
+				common.Info("modified file: %v", event)
+				process()
+				break
 			}
 		}
 	}
@@ -44,7 +43,7 @@ func process() {
 		}
 		// remoteAddr := row.displayIP(row.dwRemoteAddr)
 		// if _, ok := hostConfigMap[remoteAddr]; ok {
-		// fmt.Println("====== remoteAddr= ", remoteAddr, "\tbrowserProcessMap = ", browserProcessMap, "\tpid = ", row.dwOwningPid)
+		// common.Info("====== remoteAddr= %v\tbrowserProcessMap = %v\tpid = %v", remoteAddr, browserProcessMap, row.dwOwningPid)
 		if processName, ok := browserProcessMap[uint32(row.dwOwningPid)]; ok {
 			pidSlice, ok := tcpRowByProcessNameMap[processName]
 			if !ok {
@@ -54,7 +53,7 @@ func process() {
 			tcpRowByProcessNameMap[processName] = pidSlice
 		}
 		// }
-		// fmt.Printf("\t%-6d\t%s:%-16d\t%s:%-16d\t%d\t%d\n", row.dwState, row.displayIP(row.dwLocalAddr), row.displayPort(row.dwLocalPort), row.displayIP(row.dwRemoteAddr), row.displayPort(row.dwRemotePort), row.dwOwningPid, row.dwOffloadState)
+		// common.Info("\t%-6d\t%s:%-16d\t%s:%-16d\t%d\t%d\n", row.dwState, row.displayIP(row.dwLocalAddr), row.displayPort(row.dwLocalPort), row.displayIP(row.dwRemoteAddr), row.displayPort(row.dwRemotePort), row.dwOwningPid, row.dwOffloadState)
 	}
 	common.Info("==================== Running browser =====================")
 	for k := range tcpRowByProcessNameMap {
@@ -79,11 +78,11 @@ func process() {
 // 	hostConfigMap := make(map[string]string)
 // 	file, err := os.Open(system_hosts)
 // 	if err != nil {
-// 		log.Fatal(err)
+// 		common.Error("Fail to open system_hosts: %s", err)
 // 	}
 // 	defer file.Close()
 // 	scanner := bufio.NewScanner(file)
-// 	// fmt.Println("============================== Reading file begin =====================================")
+// 	// common.Info("============================== Reading file begin =====================================")
 // 	for scanner.Scan() {
 // 		line := strings.TrimSpace(scanner.Text())
 // 		if line != "" && !strings.HasPrefix(line, "#") {
@@ -92,14 +91,14 @@ func process() {
 // 				config = strings.Split(scanner.Text(), "\t")
 // 			}
 // 			if len(config) == 2 {
-// 				// fmt.Println(config[1], "\t", config[0])
+// 				// common.Info(config[1], "\t", config[0])
 // 				hostConfigMap[config[0]] = config[1]
 // 			}
 // 		}
 // 	}
 // 	if err := scanner.Err(); err != nil {
-// 		log.Fatal(err)
+// 		common.Error("Fail to read system_hosts: %s", err)
 // 	}
-// 	// fmt.Println("============================== Reading file end =====================================")
+// 	// common.Info("============================== Reading file end =====================================")
 // 	return hostConfigMap
 // }
