@@ -18,6 +18,28 @@ func (m *HostConfigModel) Append(item *HostConfigItem) {
 	m.PublishItemsReset(nil)
 }
 
+func (m *HostConfigModel) Insert(item *HostConfigItem) {
+	index := -1
+	for i, size := 0, len(m.Roots); i < size; i++ {
+		if item.Text() < m.Roots[i].Text() {
+			index = i
+			break
+		}
+	}
+	if index >= 0 {
+		tmp := []*HostConfigItem{}
+		if index > 0 {
+			tmp = append(tmp, m.Roots[:index]...)
+		}
+		tmp = append(tmp, item)
+		tmp = append(tmp, m.Roots[index:]...)
+		m.Roots = tmp
+	} else {
+		m.Roots = append(m.Roots, item)
+	}
+	m.PublishItemsReset(nil)
+}
+
 func (m *HostConfigModel) Remove(item *HostConfigItem) bool {
 	for i, size := 0, len(m.Roots); i < size; i++ {
 		if item == m.Roots[i] {

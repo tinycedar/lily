@@ -22,8 +22,55 @@ func newToolBar() ToolBar {
 				Image:    "res/add.png",
 				// Enabled: Bind("isSpecialMode && enabledCB.Checked"),
 				OnTriggered: func() {
-					item := &model.HostConfigItem{Name: "aaaaaa", Icon: common.IconMap[common.ICON_NEW]}
-					conf.Config.HostConfigModel.Append(item)
+					var dlg *walk.Dialog
+					var hostsNameEdit *walk.LineEdit
+					Dialog{
+						AssignTo: &dlg,
+						Title:    "新增",
+						MinSize:  Size{300, 150},
+						Layout:   VBox{},
+						Children: []Widget{
+							Composite{
+								Layout: Grid{Columns: 2},
+								Children: []Widget{
+									Label{
+										ColumnSpan: 2,
+										Text:       "Hosts名字:",
+									},
+									LineEdit{
+										AssignTo:   &hostsNameEdit,
+										ColumnSpan: 2,
+										// Text:       Bind("PatienceField"),
+									},
+								},
+							},
+							HSpacer{},
+							Composite{
+								Layout: HBox{},
+								Children: []Widget{
+									PushButton{
+										// AssignTo: &acceptPB,
+										Text: "确定",
+										OnClicked: func() {
+											// if err := db.Submit(); err != nil {
+											// 	log.Print(err)
+											// 	return
+											// }
+											item := &model.HostConfigItem{Name: hostsNameEdit.Text(), Icon: common.IconMap[common.ICON_NEW]}
+											conf.Config.HostConfigModel.Insert(item)
+											context.treeView.SetCurrentItem(item)
+											dlg.Accept()
+										},
+									},
+									PushButton{
+										// AssignTo:  &cancelPB,
+										Text:      "取消",
+										OnClicked: func() { dlg.Cancel() },
+									},
+								},
+							},
+						},
+					}.Run(context.mw)
 				},
 			},
 			//FIXME 去除刷新按钮是因为点击以后， 双击hosts不再生效
@@ -63,6 +110,9 @@ func newToolBar() ToolBar {
 							// TODO notify user
 							return
 						}
+						if context.treeView.Model().RootCount() > 0 {
+							context.treeView.SetCurrentItem(context.treeView.Model().RootAt(0))
+						}
 						file := "conf/hosts/" + current.Text() + ".hosts"
 						if err := os.Remove(file); err != nil {
 							common.Error("Fail to delete file: %s", file)
@@ -71,39 +121,6 @@ func newToolBar() ToolBar {
 						}
 						common.Info("Succeed to delete file: %s", file)
 					}
-					// 	var dlg *walk.Dialog
-					// 	Dialog{
-					// 		AssignTo: &dlg,
-					// 		Title:    "hello",
-					// 		MinSize:  Size{300, 300},
-					// 		Layout:   VBox{},
-					// 		Children: []Widget{
-					// 			Composite{
-					// 				Layout: HBox{},
-					// 				Children: []Widget{
-					// 					HSpacer{},
-					// 					PushButton{
-					// 						// AssignTo: &acceptPB,
-					// 						Text: "OK",
-					// 						OnClicked: func() {
-					// 							// if err := db.Submit(); err != nil {
-					// 							// 	log.Print(err)
-					// 							// 	return
-					// 							// }
-
-					// 							dlg.Accept()
-					// 						},
-					// 					},
-					// 					PushButton{
-					// 						// AssignTo:  &cancelPB,
-					// 						Text:      "Cancel",
-					// 						OnClicked: func() { dlg.Cancel() },
-					// 					},
-					// 				},
-					// 			},
-					// 		},
-					// 	}.Run(context.mw)
-					// 	dlg.Accept()
 				},
 			},
 		},
