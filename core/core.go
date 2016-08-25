@@ -14,14 +14,13 @@ const (
 var batcher *Batcher
 
 func FireHostsSwitch() {
-	common.Info("Start to fire hosts switch. batcher = %p", batcher)
+	common.Info("============================== Fire hosts switch ==============================")
 	if batcher != nil {
 		batcher.Close()
 	}
 	process()
 	batcher = initSystemHostsWatcher()
 	go startSystemHostsWatcher()
-	common.Info("End of fire hosts switch. batcher = %p", batcher)
 }
 
 func initSystemHostsWatcher() *Batcher {
@@ -77,11 +76,11 @@ func process() {
 		// }
 		// common.Info("\t%-6d\t%s:%-16d\t%s:%-16d\t%d\t%d\n", row.dwState, row.displayIP(row.dwLocalAddr), row.displayPort(row.dwLocalPort), row.displayIP(row.dwRemoteAddr), row.displayPort(row.dwRemotePort), row.dwOwningPid, row.dwOffloadState)
 	}
-	common.Info("==================== Running browser =====================")
+	browsers := []string{}
 	for k := range tcpRowByProcessNameMap {
-		common.Info("%v", k)
+		browsers = append(browsers, k)
 	}
-	common.Info("================== Execute Result  =====================")
+	common.Info("Browsers: %v", browsers)
 	for processName, rowSlice := range tcpRowByProcessNameMap {
 		success := true
 		for _, row := range rowSlice {
@@ -91,7 +90,7 @@ func process() {
 			}
 		}
 		if success {
-			common.Info("Succeed to close TCP connections: %s\n", processName)
+			common.Info("Succeed to close TCP connections: %s", processName)
 		}
 	}
 }
