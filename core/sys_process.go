@@ -5,9 +5,16 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/tinycedar/lily/common"
+
 	// "github.com/tinycedar/lily/common"
 	"strings"
 )
+
+var supportedBowsers = []string{
+	"chrome.exe", "firefox.exe", "opera.exe",
+	"iexplore.exe", "microsoftedge.exe", "microsoftedgecp.exe",
+	"sogouexplorer.exe", "qqbrowser.exe", "360se.exe", "360chrome.exe", "liebao.exe", "maxthon.exe", "ucbrowser.exe"}
 
 func getBrowserProcessMap() map[uint32]string {
 	pidMap := make(map[uint32]string) // [pid]processName
@@ -17,11 +24,8 @@ func getBrowserProcessMap() map[uint32]string {
 			if processName == "" {
 				continue
 			}
-			for _, name := range []string{
-				"chrome.exe", "firefox.exe", "opera.exe",
-				"iexplore.exe", "microsoftedge.exe", "microsoftedgecp.exe",
-				"sogouexplorer.exe", "qqbrowser.exe", "360se.exe", "360chrome.exe", "liebao.exe", "maxthon.exe", "ucbrowser.exe"} {
-				if strings.HasPrefix(processName, name) {
+			for _, name := range supportedBowsers {
+				if strings.HasSuffix(processName, name) {
 					pidMap[v] = name
 				}
 			}
@@ -47,15 +51,23 @@ func getAllProcessIds() []uint32 {
 }
 
 func openProcess(pid uint32) string {
-	//TODO defer close pid
 	procOpenProcess := syscall.NewLazyDLL("Kernel32.dll").NewProc("OpenProcess")
 	var dwDesiredAccess uint32 = 0x0400 | 0x0010
 	openPid, _, _ := procOpenProcess.Call(uintptr(unsafe.Pointer(&dwDesiredAccess)), 0, uintptr(pid))
 	if openPid <= 0 {
-		// common.Info("Error: %v Pid = %v\n", errorStr, pid)
+		common.Info("Fail to open process: Pid = %v", pid)
 		return ""
 	}
-	return getProcessName2(openPid)
+	defer closeHandle(openPid)
+	return getProcessName(openPid)
+}
+
+func closeHandle(openPid uintptr) {
+	procCloseHandle := syscall.NewLazyDLL("Kernel32.dll").NewProc("CloseHandle")
+	ret, _, _ := procCloseHandle.Call(uintptr(openPid))
+	if ret <= 0 {
+		common.Info("Fail to close handle: ret = %v", ret)
+	}
 }
 
 func getProcessName(pid uintptr) string {

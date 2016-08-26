@@ -1,10 +1,14 @@
 package core
 
 import (
+	"bufio"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/tinycedar/lily/common"
+	"github.com/tinycedar/lily/conf"
 )
 
 const (
@@ -18,7 +22,7 @@ func FireHostsSwitch() {
 	if batcher != nil {
 		batcher.Close()
 	}
-	process()
+	doProcess()
 	batcher = initSystemHostsWatcher()
 	go startSystemHostsWatcher()
 }
@@ -43,12 +47,62 @@ func startSystemHostsWatcher() {
 		for _, event := range events {
 			if event.Op&fsnotify.Write == fsnotify.Write {
 				common.Info("modified file: %v", event)
-				process()
+				doProcess()
 				break
 			}
 		}
 	}
 	// never return
+}
+
+// 1. Find collection of same domain names between system hosts and currentHostIndex
+// 2. Disconnect the TCP connections(http:80 & https:443) of collection found above
+func doProcess() {
+	overlapHostConfigMap := getOverlapHostConfigMap()
+	common.Info("overlapHostConfigMap: %v", overlapHostConfigMap)
+	if len(overlapHostConfigMap) == 0 {
+		return
+	}
+	table := getTCPTable()
+	for i := uint32(0); i < uint32(table.dwNumEntries); i++ {
+		row := table.table[i]
+		if row.dwOwningPid <= 0 {
+			continue
+		}
+		ip := row.displayIP(row.dwRemoteAddr)
+		port := row.displayPort(row.dwRemotePort)
+		if _, ok := overlapHostConfigMap[ip]; !ok {
+			continue
+		}
+		if port == 80 || port == 443 {
+			if err := CloseTCPEntry(row); err != nil {
+				common.Error("Fail to close TCP connections: Pid = %v, Addr = %v:%v\n", row.dwOwningPid, ip, port)
+			} else {
+				common.Info("Succeed to close TCP connections: Pid = %v, Addr = %v:%v", row.dwOwningPid, ip, port)
+			}
+		}
+	}
+}
+
+func getOverlapHostConfigMap() map[string]bool {
+	result := make(map[string]bool)
+	var currentHostConfigMap map[string]string
+	if current := conf.Config.HostConfigModel.RootAt(conf.Config.CurrentHostIndex); current != nil {
+		currentHostConfigMap = readHostConfigMap("conf/hosts/" + current.Text() + ".hosts")
+	}
+	common.Info("currentHostConfigMap: %v", currentHostConfigMap)
+	if len(currentHostConfigMap) == 0 {
+		return result
+	}
+	common.Info("systemConfigMap: %v", readHostConfigMap(systemHosts))
+	for k, v := range readHostConfigMap(systemHosts) {
+		v2, ok := currentHostConfigMap[k]
+		common.Info("k: %s, %s - %s", k, v, v2)
+		if ok && v != v2 {
+			result[v] = true
+		}
+	}
+	return result
 }
 
 func process() {
@@ -95,31 +149,36 @@ func process() {
 	}
 }
 
-// func readFile() map[string]string {
-// 	hostConfigMap := make(map[string]string)
-// 	file, err := os.Open(system_hosts)
-// 	if err != nil {
-// 		common.Error("Fail to open system_hosts: %s", err)
-// 	}
-// 	defer file.Close()
-// 	scanner := bufio.NewScanner(file)
-// 	// common.Info("============================== Reading file begin =====================================")
-// 	for scanner.Scan() {
-// 		line := strings.TrimSpace(scanner.Text())
-// 		if line != "" && !strings.HasPrefix(line, "#") {
-// 			config := strings.Split(scanner.Text(), " ")
-// 			if len(config) != 2 {
-// 				config = strings.Split(scanner.Text(), "\t")
-// 			}
-// 			if len(config) == 2 {
-// 				// common.Info("%v\t%v", config[1], config[0])
-// 				hostConfigMap[config[0]] = config[1]
-// 			}
-// 		}
-// 	}
-// 	if err := scanner.Err(); err != nil {
-// 		common.Error("Fail to read system_hosts: %s", err)
-// 	}
-// 	// common.Info("============================== Reading file end =====================================")
-// 	return hostConfigMap
-// }
+func readHostConfigMap(path string) map[string]string {
+	hostConfigMap := make(map[string]string)
+	file, err := os.Open(path)
+	if err != nil {
+		common.Error("Fail to open system_hosts: %s", err)
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line != "" && !strings.HasPrefix(line, "#") {
+			config := trimDuplicateSpaces(line)
+			if len(config) == 2 {
+				hostConfigMap[config[1]] = config[0]
+			}
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		common.Error("Fail to read system_hosts: %s", err)
+	}
+	return hostConfigMap
+}
+
+func trimDuplicateSpaces(line string) []string {
+	temp := []string{}
+	line = strings.TrimSpace(line)
+	for _, v := range strings.SplitN(line, " ", 2) {
+		if trimed := strings.TrimSpace(v); trimed != "" {
+			temp = append(temp, trimed)
+		}
+	}
+	return temp
+}
