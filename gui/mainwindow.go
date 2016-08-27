@@ -92,4 +92,5 @@ func showCurrentItem(hostConfigText *walk.TextEdit) {
 			hostConfigText.SetText(string(bytes))
 		}
 	}
+	// TODO write to system hosts
 }

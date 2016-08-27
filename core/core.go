@@ -15,44 +15,16 @@ const (
 	systemHosts = "C:/Windows/System32/drivers/etc/hosts"
 )
 
-var batcher *Batcher
+// var batcher *Batcher
 
 func FireHostsSwitch() {
 	common.Info("============================== Fire hosts switch ==============================")
-	if batcher != nil {
-		batcher.Close()
-	}
+	// if batcher != nil {
+	// 	batcher.Close()
+	// }
 	doProcess()
-	batcher = initSystemHostsWatcher()
-	go startSystemHostsWatcher()
-}
-
-func initSystemHostsWatcher() *Batcher {
-	batcher, err := New(time.Millisecond * 300)
-	if err != nil {
-		common.Error("Fail to initialize batcher")
-	}
-	if err = batcher.Add(systemHosts); err != nil {
-		common.Error("Fail to add system hosts: %s", systemHosts)
-	}
-	return batcher
-}
-
-func startSystemHostsWatcher() {
-	if batcher == nil {
-		common.Error("Fail to start system hosts watcher, watcher is nil")
-		return
-	}
-	for events := range batcher.Events {
-		for _, event := range events {
-			if event.Op&fsnotify.Write == fsnotify.Write {
-				common.Info("modified file: %v", event)
-				doProcess()
-				break
-			}
-		}
-	}
-	// never return
+	// batcher = initSystemHostsWatcher()
+	// go startSystemHostsWatcher()
 }
 
 // 1. Find collection of same domain names between system hosts and currentHostIndex
@@ -181,4 +153,32 @@ func trimDuplicateSpaces(line string) []string {
 		}
 	}
 	return temp
+}
+
+func initSystemHostsWatcher() *Batcher {
+	batcher, err := New(time.Millisecond * 300)
+	if err != nil {
+		common.Error("Fail to initialize batcher")
+	}
+	if err = batcher.Add(systemHosts); err != nil {
+		common.Error("Fail to add system hosts: %s", systemHosts)
+	}
+	return batcher
+}
+
+func startSystemHostsWatcher() {
+	if batcher == nil {
+		common.Error("Fail to start system hosts watcher, watcher is nil")
+		return
+	}
+	for events := range batcher.Events {
+		for _, event := range events {
+			if event.Op&fsnotify.Write == fsnotify.Write {
+				common.Info("modified file: %v", event)
+				doProcess()
+				break
+			}
+		}
+	}
+	// never return
 }
