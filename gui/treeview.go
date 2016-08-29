@@ -42,9 +42,6 @@ func newTreeView() TreeView {
 				}
 				treeModel.PublishItemChanged(item)
 			}
-			if err := ioutil.WriteFile("C:/Windows/System32/drivers/etc/hosts", []byte(context.hostConfigText.Text()), os.ModeExclusive); err != nil {
-				common.Error("Error writing to system hosts file: ", err)
-			}
 			configJSON, err := json.Marshal(conf.Config)
 			if err != nil {
 				common.Error("Error marshal json: %v", err)

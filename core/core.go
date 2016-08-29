@@ -2,6 +2,7 @@ package core
 
 import (
 	"bufio"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -28,7 +29,8 @@ func FireHostsSwitch() {
 // 1. Find collection of same domain names between system hosts and currentHostIndex
 // 2. Disconnect the TCP connections(http:80 & https:443) of collection found above
 func doProcess() {
-	overlapHostConfigMap := getOverlapHostConfigMap()
+	overlapHostConfigMap := getHostsIpMap()
+	overwriteSystemHosts()
 	common.Info("overlapHostConfigMap: %v", overlapHostConfigMap)
 	if len(overlapHostConfigMap) == 0 {
 		return
@@ -44,7 +46,7 @@ func doProcess() {
 		if _, ok := overlapHostConfigMap[ip]; !ok {
 			continue
 		}
-		if port == 80 || port == 443 {
+		if common.BrowserMap[OpenProcess(uint32(row.dwOwningPid))] || port == 80 || port == 443 {
 			if err := CloseTCPEntry(row); err != nil {
 				common.Error("Fail to close TCP connections: Pid = %v, Addr = %v:%v\n", row.dwOwningPid, ip, port)
 			} else {
@@ -54,25 +56,45 @@ func doProcess() {
 	}
 }
 
-func getOverlapHostConfigMap() map[string]bool {
-	result := make(map[string]bool)
-	var currentHostConfigMap map[string]string
-	if current := conf.Config.HostConfigModel.RootAt(conf.Config.CurrentHostIndex); current != nil {
-		currentHostConfigMap = readHostConfigMap("conf/hosts/" + current.Text() + ".hosts")
+// find all the ip of system and current hosts
+func getHostsIpMap() map[string]bool {
+	ipMap := make(map[string]bool)
+	for k := range readHostConfigMap(systemHosts) {
+		ipMap[k] = true
 	}
-	common.Info("currentHostConfigMap: %v", currentHostConfigMap)
-	if len(currentHostConfigMap) == 0 {
-		return result
-	}
-	common.Info("systemConfigMap: %v", readHostConfigMap(systemHosts))
-	for k, v := range readHostConfigMap(systemHosts) {
-		v2, ok := currentHostConfigMap[k]
-		common.Info("k: %s, %s - %s", k, v, v2)
-		if ok && v != v2 {
-			result[v] = true
+	model := conf.Config.HostConfigModel
+	index := conf.Config.CurrentHostIndex
+	if length := len(model.Roots); index >= 0 && length > 0 && index < length {
+		path := "conf/hosts/" + model.RootAt(index).Text() + ".hosts"
+		for k := range readHostConfigMap(path) {
+			ipMap[k] = true
 		}
 	}
-	return result
+	return ipMap
+}
+
+func overwriteSystemHosts() {
+	bytes := ReadCurrentHostConfig()
+	if bytes == nil {
+		return
+	}
+	if err := ioutil.WriteFile(systemHosts, bytes, os.ModeExclusive); err != nil {
+		common.Error("Error writing to system hosts file: ", err)
+	}
+}
+
+func ReadCurrentHostConfig() []byte {
+	model := conf.Config.HostConfigModel
+	index := conf.Config.CurrentHostIndex
+	if length := len(model.Roots); index < 0 || length <= 0 || index >= length {
+		return nil
+	}
+	bytes, err := ioutil.ReadFile("conf/hosts/" + model.RootAt(index).Text() + ".hosts")
+	if err != nil {
+		common.Info("Error reading host config: %v", err)
+		return nil
+	}
+	return bytes
 }
 
 func process() {
@@ -123,7 +145,7 @@ func readHostConfigMap(path string) map[string]string {
 	hostConfigMap := make(map[string]string)
 	file, err := os.Open(path)
 	if err != nil {
-		common.Error("Fail to open system_hosts: %s", err)
+		common.Info("Fail to open system_hosts: %s", err)
 	}
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
@@ -137,7 +159,7 @@ func readHostConfigMap(path string) map[string]string {
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		common.Error("Fail to read system_hosts: %s", err)
+		common.Info("Fail to read system_hosts: %s", err)
 	}
 	return hostConfigMap
 }

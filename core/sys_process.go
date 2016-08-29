@@ -11,20 +11,15 @@ import (
 	"strings"
 )
 
-var supportedBowsers = []string{
-	"chrome.exe", "firefox.exe", "opera.exe",
-	"iexplore.exe", "microsoftedge.exe", "microsoftedgecp.exe",
-	"sogouexplorer.exe", "qqbrowser.exe", "360se.exe", "360chrome.exe", "liebao.exe", "maxthon.exe", "ucbrowser.exe"}
-
 func getBrowserProcessMap() map[uint32]string {
 	pidMap := make(map[uint32]string) // [pid]processName
 	for _, v := range getAllProcessIds() {
 		if v > 0 {
-			processName := strings.ToLower(strings.Trim(openProcess(v), " "))
+			processName := strings.ToLower(strings.Trim(OpenProcess(v), " "))
 			if processName == "" {
 				continue
 			}
-			for _, name := range supportedBowsers {
+			for name := range common.BrowserMap {
 				if strings.HasSuffix(processName, name) {
 					pidMap[v] = name
 				}
@@ -50,7 +45,7 @@ func getAllProcessIds() []uint32 {
 	return processes[:cbNeeded/4]
 }
 
-func openProcess(pid uint32) string {
+func OpenProcess(pid uint32) string {
 	procOpenProcess := syscall.NewLazyDLL("Kernel32.dll").NewProc("OpenProcess")
 	var dwDesiredAccess uint32 = 0x0400 | 0x0010
 	openPid, _, _ := procOpenProcess.Call(uintptr(unsafe.Pointer(&dwDesiredAccess)), 0, uintptr(pid))

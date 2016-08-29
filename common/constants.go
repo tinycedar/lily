@@ -14,6 +14,7 @@ const (
 )
 
 var IconMap = make(map[int]*walk.Bitmap)
+var BrowserMap = make(map[string]bool)
 
 func Init() {
 	IconMap[ICON_ADD], _ = walk.NewBitmapFromFile("res/add.png")
@@ -24,4 +25,18 @@ func Init() {
 	IconMap[ICON_PLUS], _ = walk.NewBitmapFromFile("res/plus.png")
 	IconMap[ICON_REFRESH], _ = walk.NewBitmapFromFile("res/refresh.png")
 	IconMap[ICON_SETTING], _ = walk.NewBitmapFromFile("res/setting.png")
+
+	BrowserMap["chrome.exe"] = true
+	BrowserMap["firefox.exe"] = true
+	BrowserMap["opera.exe"] = true
+	BrowserMap["iexplore.exe"] = true
+	BrowserMap["microsoftedge.exe"] = true
+	BrowserMap["microsoftedgecp.exe"] = true
+	BrowserMap["sogouexplorer.exe"] = true
+	BrowserMap["qqbrowser.exe"] = true
+	BrowserMap["360se.exe"] = true
+	BrowserMap["360chrome.exe"] = true
+	BrowserMap["liebao.exe"] = true
+	BrowserMap["maxthon.exe"] = true
+	BrowserMap["ucbrowser.exe"] = true
 }

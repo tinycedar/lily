@@ -1,14 +1,13 @@
 package gui
 
 import (
-	"io/ioutil"
 	"os"
 
 	"github.com/lxn/walk"
 	. "github.com/lxn/walk/declarative"
 	"github.com/lxn/win"
 	"github.com/tinycedar/lily/common"
-	"github.com/tinycedar/lily/conf"
+	"github.com/tinycedar/lily/core"
 )
 
 var context = new(widgetContext)
@@ -77,20 +76,7 @@ func setTreeViewBackground(treeView *walk.TreeView) {
 }
 
 func showCurrentItem(hostConfigText *walk.TextEdit) {
-	model := conf.Config.HostConfigModel
-	index := conf.Config.CurrentHostIndex
-	if index < 0 || len(model.Roots) == 0 {
-		return
+	if bytes := core.ReadCurrentHostConfig(); bytes != nil {
+		hostConfigText.SetText(string(bytes))
 	}
-	current := model.RootAt(index)
-	if current == nil {
-		common.Error("Invalid CurrentHostIndex in config.json, cannot find the specific hosts")
-	} else {
-		if bytes, err := ioutil.ReadFile("conf/hosts/" + current.Text() + ".hosts"); err != nil {
-			common.Error("Error reading host config: %v", err)
-		} else {
-			hostConfigText.SetText(string(bytes))
-		}
-	}
-	// TODO write to system hosts
 }
