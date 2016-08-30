@@ -18,6 +18,7 @@ type widgetContext struct {
 	hostConfigText *walk.TextEdit
 	addButton      *walk.Action
 	deleteButton   *walk.Action
+	notifyIcon     *walk.NotifyIcon
 }
 
 // InitMainWindow initialize main window
@@ -43,12 +44,13 @@ func InitMainWindow() {
 	}
 	setWindowIcon(context.mw)
 	setXY(context.mw)
-	newNotify(context.mw)
+	newNotify()
 	setTreeViewBackground(context.treeView)
 	showCurrentItem(context.hostConfigText)
 	context.mw.Closing().Attach(func(canceled *bool, reason walk.CloseReason) {
 		*canceled = true
 		context.mw.Hide()
+		context.notifyIcon.ShowCustom("当前程序最小化到托盘", "Best hosts manager ever")
 	})
 	(*context.deleteButton).SetEnabled(false)
 	context.mw.Run()

@@ -50,7 +50,7 @@ func OpenProcess(pid uint32) string {
 	var dwDesiredAccess uint32 = 0x0400 | 0x0010
 	openPid, _, _ := procOpenProcess.Call(uintptr(unsafe.Pointer(&dwDesiredAccess)), 0, uintptr(pid))
 	if openPid <= 0 {
-		common.Info("Fail to open process: Pid = %v", pid)
+		common.Error("Fail to open process: Pid = %v", pid)
 		return ""
 	}
 	defer closeHandle(openPid)
@@ -71,7 +71,13 @@ func getProcessName(pid uintptr) string {
 	var cbNeeded uint32 = 1024
 	var processName = make([]byte, cbNeeded)
 	procQueryFullProcessImageName.Call(uintptr(pid), 0, uintptr(unsafe.Pointer(&processName[0])), uintptr(unsafe.Pointer(&cbNeeded)))
-	return string(processName[0:cbNeeded])
+	processPath := string(processName[0:cbNeeded])
+	for i := len(processPath) - 2; i >= 0; i-- {
+		if processPath[i] == '\\' {
+			return processPath[i+1:]
+		}
+	}
+	return processPath
 }
 
 func getProcessName2(pid uintptr) string {

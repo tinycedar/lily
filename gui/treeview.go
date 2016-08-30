@@ -48,8 +48,11 @@ func newTreeView() TreeView {
 			} else {
 				ioutil.WriteFile("conf/config.json", configJSON, os.ModeExclusive)
 			}
-			// fire hosts switch
-			core.FireHostsSwitch()
+			if core.FireHostsSwitch() {
+				context.notifyIcon.ShowCustom("切换"+current.Text()+"成功！", "Best hosts manager ever")
+			} else {
+				context.notifyIcon.ShowError("切换"+current.Text()+"失败！", "Best hosts manager ever")
+			}
 		},
 	}
 }

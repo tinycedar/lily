@@ -16,58 +16,58 @@ const (
 
 // var batcher *Batcher
 
-func FireHostsSwitch() {
+func FireHostsSwitch() bool {
 	common.Info("============================== Fire hosts switch ==============================")
 	// if batcher != nil {
 	// 	batcher.Close()
 	// }
-	doProcess()
+	return doProcess()
 	// batcher = initSystemHostsWatcher()
 	// go startSystemHostsWatcher()
 }
 
 // 1. Find collection of same domain names between system hosts and currentHostIndex
 // 2. Disconnect the TCP connections(http:80 & https:443) of collection found above
-func doProcess() {
-	overlapHostConfigMap := getHostsIpMap()
+func doProcess() bool {
+	success := true
+	hostsIpMap := getHostsIpMap()
 	overwriteSystemHosts()
-	common.Info("overlapHostConfigMap: %v", overlapHostConfigMap)
-	if len(overlapHostConfigMap) == 0 {
-		return
-	}
 	table := getTCPTable()
 	for i := uint32(0); i < uint32(table.dwNumEntries); i++ {
 		row := table.table[i]
+		ip := row.displayIP(row.dwRemoteAddr)
+		port := row.displayPort(row.dwRemotePort)
 		if row.dwOwningPid <= 0 {
 			continue
 		}
-		ip := row.displayIP(row.dwRemoteAddr)
-		port := row.displayPort(row.dwRemotePort)
-		if _, ok := overlapHostConfigMap[ip]; !ok {
+		if port != 80 && port != 443 {
 			continue
 		}
-		if common.BrowserMap[OpenProcess(uint32(row.dwOwningPid))] || port == 80 || port == 443 {
+		supported := common.BrowserMap[strings.ToLower(OpenProcess(uint32(row.dwOwningPid)))]
+		if hostsIpMap[ip] || supported {
 			if err := CloseTCPEntry(row); err != nil {
 				common.Error("Fail to close TCP connections: Pid = %v, Addr = %v:%v\n", row.dwOwningPid, ip, port)
+				success = false
 			} else {
 				common.Info("Succeed to close TCP connections: Pid = %v, Addr = %v:%v", row.dwOwningPid, ip, port)
 			}
 		}
 	}
+	return success
 }
 
 // find all the ip of system and current hosts
 func getHostsIpMap() map[string]bool {
 	ipMap := make(map[string]bool)
-	for k := range readHostConfigMap(systemHosts) {
-		ipMap[k] = true
+	for _, v := range readHostConfigMap(systemHosts) {
+		ipMap[v] = true
 	}
 	model := conf.Config.HostConfigModel
 	index := conf.Config.CurrentHostIndex
 	if length := len(model.Roots); index >= 0 && length > 0 && index < length {
 		path := "conf/hosts/" + model.RootAt(index).Text() + ".hosts"
-		for k := range readHostConfigMap(path) {
-			ipMap[k] = true
+		for _, v := range readHostConfigMap(path) {
+			ipMap[v] = true
 		}
 	}
 	return ipMap
@@ -152,27 +152,16 @@ func readHostConfigMap(path string) map[string]string {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line != "" && !strings.HasPrefix(line, "#") {
-			config := trimDuplicateSpaces(line)
+			config := strings.Fields(line)
 			if len(config) == 2 {
 				hostConfigMap[config[1]] = config[0]
 			}
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		common.Info("Fail to read system_hosts: %s", err)
+		common.Error("Fail to read system_hosts: %s", err)
 	}
 	return hostConfigMap
-}
-
-func trimDuplicateSpaces(line string) []string {
-	temp := []string{}
-	line = strings.TrimSpace(line)
-	for _, v := range strings.SplitN(line, " ", 2) {
-		if trimed := strings.TrimSpace(v); trimed != "" {
-			temp = append(temp, trimed)
-		}
-	}
-	return temp
 }
 
 // func initSystemHostsWatcher() *Batcher {
