@@ -19,17 +19,14 @@ const pidFilePath = "conf\\lily.pid"
 
 func main() {
 	Init()
+	go aa()
 	go core.FireHostsSwitch()
 	gui.InitMainWindow()
 }
 
-func cleanup() {
-	fmt.Println("cleanup")
-}
-
 func aa() {
 	c := make(chan os.Signal, 10)
-	signal.Notify(c, os.Interrupt, os.Kill, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	signal.Notify(c, os.Kill)
 	// go func() {
 	// 	<-c
 	// 	cleanup()
@@ -38,15 +35,15 @@ func aa() {
 	go func() {
 		for {
 			sig := <-c
-			cleanup()
-			common.Info("signal: %v", sig)
+			common.Info("received signal: %v", sig)
 		}
 	}()
 }
 
 func Init() {
+	// aa()
 	if process := findStartedProcess(); process == nil {
-		common.Info("Found none...")
+		common.Info("None...")
 		if err := ioutil.WriteFile(pidFilePath, []byte(fmt.Sprint(os.Getpid())), os.ModeExclusive); err != nil {
 			common.Error("Error writing to system hosts file: ", err)
 		}
@@ -57,8 +54,12 @@ func Init() {
 		// 	common.Error("Fail to create pid file, pidPath = %v", pidPath)
 		// }
 	} else {
-		common.Info("Already started...")
-		os.Exit(1)
+		common.Info("Found already running process: %v", process.Pid)
+		process.Release()
+		// process.Kill()
+		process.Signal(os.Kill)
+		// process.Wait()
+		// os.Exit(1)
 	}
 }
 
@@ -69,10 +70,6 @@ func findStartedProcess() *os.Process {
 				if _, ok := getProcessNameMap()[uint32(pid)]; ok {
 					return process
 				}
-				// common.Info("process: %v, %v", process, process.e)
-				// err := process.Signal(syscall.Signal(0))
-				// common.Info("Send signal: %v", err)
-				return nil
 			}
 		}
 	}

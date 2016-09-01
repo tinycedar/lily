@@ -37,7 +37,8 @@ func newNotify() {
 		common.Error("Error setting exitAction text: %v", err)
 	}
 	exitAction.Triggered().Attach(func() {
-		defer context.notifyIcon.Dispose()
+		context.notifyIcon.Dispose()
+		// os.Exit(-1)
 		walk.App().Exit(0)
 	})
 	if err := context.notifyIcon.ContextMenu().Actions().Add(exitAction); err != nil {
