@@ -5,8 +5,8 @@
 ## Motivation
 We usually have to switch between a bunch of test environments which have same domain but with different ip.
 Since it's troublesome to modify hosts file each time we make switch, so we use some tools to manage it.
-I've tried HostAdmin, SwitchHosts! and some other tools but they all have the some problem: we have to restart
-browser in order to take effect after hosts switched.
+I've tried HostAdmin, SwitchHosts! and some other tools but they all have the same problem: browser restart
+is required in order to take effect once switch.
 
 So I decide to solve this problem by "Reinventing the wheel", and as a Go enthusiast, I choose Go to develop it.
 If you're interested in this project please fork it and pull request is prefered :)
