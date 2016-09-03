@@ -31,13 +31,12 @@ func newTreeView() TreeView {
 		// double click
 		OnItemActivated: func() {
 			current := context.treeView.CurrentItem().(*model.HostConfigItem)
-			previousIndex := conf.Config.CurrentHostIndex
 			for i := 0; i < treeModel.RootCount(); i++ {
 				item := treeModel.RootAt(i).(*model.HostConfigItem)
 				if item == current {
 					conf.Config.CurrentHostIndex = i
 					item.Icon = common.IconMap[common.ICON_OPEN]
-				} else if previousIndex == i {
+				} else {
 					item.Icon = common.IconMap[common.ICON_NEW]
 				}
 				treeModel.PublishItemChanged(item)

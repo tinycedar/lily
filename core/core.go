@@ -30,8 +30,9 @@ func FireHostsSwitch() bool {
 // 2. Disconnect the TCP connections(http:80 & https:443) of collection found above
 func doProcess() bool {
 	success := true
-	hostsIpMap := getHostsIpMap()
+	hostsIPMap := getHostsIpMap()
 	overwriteSystemHosts()
+	processNameMap := GetProcessNameMap()
 	table := getTCPTable()
 	for i := uint32(0); i < uint32(table.dwNumEntries); i++ {
 		row := table.table[i]
@@ -43,13 +44,13 @@ func doProcess() bool {
 		if port != 80 && port != 443 {
 			continue
 		}
-		supported := common.BrowserMap[strings.ToLower(OpenProcess(uint32(row.dwOwningPid)))]
-		if hostsIpMap[ip] || supported {
+		process := strings.ToLower(processNameMap[uint32(row.dwOwningPid)])
+		if hostsIPMap[ip] || common.BrowserMap[process] {
 			if err := CloseTCPEntry(row); err != nil {
-				common.Error("Fail to close TCP connections: Pid = %v, Addr = %v:%v\n", row.dwOwningPid, ip, port)
+				common.Error("Fail to close TCP connections: Process = %v, Pid = %v, Addr = %v:%v", process, row.dwOwningPid, ip, port)
 				success = false
 			} else {
-				common.Info("Succeed to close TCP connections: Pid = %v, Addr = %v:%v", row.dwOwningPid, ip, port)
+				common.Info("Succeed to close TCP connections: Process = %v, Pid = %v, Addr = %v:%v", process, row.dwOwningPid, ip, port)
 			}
 		}
 	}
@@ -99,7 +100,7 @@ func ReadCurrentHostConfig() []byte {
 
 func process() {
 	// hostConfigMap := readFile()
-	browserProcessMap := getBrowserProcessMap()
+	browserProcessMap := GetProcessNameMap()
 	table := getTCPTable()
 	// group by process
 	tcpRowByProcessNameMap := make(map[string][]*MIB_TCPROW2)

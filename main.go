@@ -6,9 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
-	"syscall"
-	"unicode/utf16"
-	"unsafe"
 
 	"github.com/tinycedar/lily/common"
 	"github.com/tinycedar/lily/core"
@@ -67,46 +64,11 @@ func findStartedProcess() *os.Process {
 	if bytes, err := ioutil.ReadFile(pidFilePath); err == nil {
 		if pid, err := strconv.Atoi(string(bytes)); err == nil {
 			if process, err := os.FindProcess(pid); err == nil {
-				if _, ok := getProcessNameMap()[uint32(pid)]; ok {
+				if _, ok := core.GetProcessNameMap()[uint32(pid)]; ok {
 					return process
 				}
 			}
 		}
 	}
 	return nil
-}
-
-func getProcessNameMap() map[uint32]string {
-	snapshot, err := syscall.CreateToolhelp32Snapshot(syscall.TH32CS_SNAPPROCESS, 0)
-	if err != nil {
-		common.Error("Fail to syscall CreateToolhelp32Snapshot: %v", err)
-		return nil
-	}
-	defer syscall.CloseHandle(snapshot)
-	var procEntry syscall.ProcessEntry32
-	procEntry.Size = uint32(unsafe.Sizeof(procEntry))
-	if err = syscall.Process32First(snapshot, &procEntry); err != nil {
-		common.Error("Fail to syscall Process32First: %v", err)
-		return nil
-	}
-	processNameMap := make(map[uint32]string)
-	for {
-		processNameMap[procEntry.ProcessID] = parseProcessName(procEntry.ExeFile)
-		if err = syscall.Process32Next(snapshot, &procEntry); err != nil {
-			if err == syscall.ERROR_NO_MORE_FILES {
-				return processNameMap
-			}
-			common.Error("Fail to syscall Process32Next: %v", err)
-			return nil
-		}
-	}
-}
-
-func parseProcessName(exeFile [syscall.MAX_PATH]uint16) string {
-	for i, v := range exeFile {
-		if v <= 0 {
-			return string(utf16.Decode(exeFile[:i]))
-		}
-	}
-	return ""
 }
