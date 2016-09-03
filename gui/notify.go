@@ -23,7 +23,7 @@ func newNotify() {
 			if !context.mw.Visible() {
 				context.mw.Show()
 			} else {
-				//TODO
+				context.mw.SwitchToThisWindow()
 			}
 		}
 		// if err := context.notifyIcon.ShowCustom(

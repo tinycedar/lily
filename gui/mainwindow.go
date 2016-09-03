@@ -53,7 +53,6 @@ func InitMainWindow() {
 		context.notifyIcon.ShowCustom("当前程序最小化到托盘", "Best hosts manager ever")
 	})
 	(*context.deleteButton).SetEnabled(false)
-	context.mw.DisableMinimizeButton()
 	context.mw.Run()
 }
 

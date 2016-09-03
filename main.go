@@ -12,7 +12,7 @@ import (
 	"github.com/tinycedar/lily/gui"
 )
 
-const pidFilePath = "conf\\lily.pid"
+const pidFilePath = "conf/lily.pid"
 
 func main() {
 	Init()
