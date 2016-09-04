@@ -1,4 +1,4 @@
-# lily: hosts manager takes effect immediately on switch
+# Lily: hosts manager takes effect immediately on switch
 
 ![capture](https://cloud.githubusercontent.com/assets/8019222/18225305/4a399b78-7222-11e6-8e1e-9e0037c63d2b.PNG)
 
@@ -8,7 +8,7 @@ Since it's troublesome to modify hosts directly, we use some tools to manage it.
 I've tried HostAdmin, SwitchHosts! and some others but found that they all have the same problem: browser reboot
 is required in order to take effect after switch.
 
-So I decide to solve this problem by "Reinventing the wheel", and as a Go enthusiast, I choose Go to develop it.
+So I decide to solve this problem by means of "Reinventing the wheel", and as a Go enthusiast, I choose Go to develop it.
 If you're interested in this project please fork it and pull request is prefered :)
 
 ## Feature
