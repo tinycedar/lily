@@ -22,6 +22,9 @@ If you're interested in this project please fork it and pull request is preferre
 Only Windows is supported recently and MacOS and Linux will be supported in the near future.
 Probably I will use [Electron](http://electron.atom.io/) framework to implement cross-platform feature.
 
+## Install
+Download binary in [Releases](https://github.com/tinycedar/lily/releases)
+
 ## Build
 ```
 get get -v github.com/tinycedar/lily
