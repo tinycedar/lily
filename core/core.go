@@ -26,8 +26,6 @@ func FireHostsSwitch() bool {
 	// go startSystemHostsWatcher()
 }
 
-// 1. Find collection of same domain names between system hosts and currentHostIndex
-// 2. Disconnect the TCP connections(http:80 & https:443) of collection found above
 func doProcess() bool {
 	success := true
 	hostsIPMap := getHostsIpMap()
@@ -96,50 +94,6 @@ func ReadCurrentHostConfig() []byte {
 		return nil
 	}
 	return bytes
-}
-
-func process() {
-	// hostConfigMap := readFile()
-	browserProcessMap := GetProcessNameMap()
-	table := getTCPTable()
-	// group by process
-	tcpRowByProcessNameMap := make(map[string][]*MIB_TCPROW2)
-	for i := uint32(0); i < uint32(table.dwNumEntries); i++ {
-		row := table.table[i]
-		if row.dwOwningPid <= 0 {
-			continue
-		}
-		// remoteAddr := row.displayIP(row.dwRemoteAddr)
-		// if _, ok := hostConfigMap[remoteAddr]; ok {
-		// common.Info("====== remoteAddr= %v\tbrowserProcessMap = %v\tpid = %v", remoteAddr, browserProcessMap, row.dwOwningPid)
-		if processName, ok := browserProcessMap[uint32(row.dwOwningPid)]; ok {
-			pidSlice, ok := tcpRowByProcessNameMap[processName]
-			if !ok {
-				pidSlice = []*MIB_TCPROW2{}
-			}
-			pidSlice = append(pidSlice, row)
-			tcpRowByProcessNameMap[processName] = pidSlice
-		}
-		// }
-		// common.Info("\t%-6d\t%s:%-16d\t%s:%-16d\t%d\t%d\n", row.dwState, row.displayIP(row.dwLocalAddr), row.displayPort(row.dwLocalPort), row.displayIP(row.dwRemoteAddr), row.displayPort(row.dwRemotePort), row.dwOwningPid, row.dwOffloadState)
-	}
-	browsers := []string{}
-	for k := range tcpRowByProcessNameMap {
-		browsers = append(browsers, k)
-	}
-	common.Info("Browsers: %v", browsers)
-	for processName, rowSlice := range tcpRowByProcessNameMap {
-		success := true
-		for _, row := range rowSlice {
-			if err := CloseTCPEntry(row); err != nil {
-				success = false
-				common.Error("Fail to close TCP connections: %s, %v\n", processName, row.dwOwningPid)
-			}
-		}
-		if success {
-			common.Info("Succeed to close TCP connections: %s", processName)
-		}
-	}
 }
 
 func readHostConfigMap(path string) map[string]string {
