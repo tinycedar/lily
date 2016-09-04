@@ -12,16 +12,13 @@ So I decide to solve this problem by "Reinventing the wheel", and as a Go enthus
 If you're interested in this project please fork it and pull request is prefered :)
 
 ## Feature
-* Takes effect immediately on swtich
+* Takes effect immediately on switch
 * Easy to use
-* Clean code
 * Written purely in Go
+* Clean code
 
 ## Build
 ```
 get get -v github.com/tinycedar/lily
 go build -ldflags="-H windowsgui"
 ```
-
-## Run
-Double click Lily.exe
