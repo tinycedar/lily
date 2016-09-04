@@ -3,6 +3,7 @@ package gui
 import (
 	"github.com/lxn/walk"
 	"github.com/tinycedar/lily/common"
+	"github.com/tinycedar/lily/core"
 )
 
 func newNotify() {
@@ -18,13 +19,17 @@ func newNotify() {
 	if err := context.notifyIcon.SetToolTip("Click for info or use the context menu to exit."); err != nil {
 		common.Error("Fail to set tooltip: %v", err)
 	}
+	f := func() {
+		if !context.mw.Visible() {
+			context.mw.Show()
+		} else {
+			context.mw.SwitchToThisWindow()
+		}
+	}
+	go core.Triggered(f)
 	context.notifyIcon.MouseUp().Attach(func(x, y int, button walk.MouseButton) {
 		if button == walk.LeftButton {
-			if !context.mw.Visible() {
-				context.mw.Show()
-			} else {
-				context.mw.SwitchToThisWindow()
-			}
+			f()
 		}
 		// if err := context.notifyIcon.ShowCustom(
 		// 	"Walk NotifyIcon Example",

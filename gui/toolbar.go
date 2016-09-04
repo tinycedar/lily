@@ -80,8 +80,6 @@ func newToolBar() ToolBar {
 			// 	// Enabled: Bind("isSpecialMode && enabledCB.Checked"),
 			// 	OnTriggered: func() {
 			// 		conf.Load()
-			// 		// item := &model.HostConfigItem{Name: "rrrr", Icon: common.IconMap[common.ICON_NEW]}
-			// 		// conf.Config.HostConfigModel.Append(item)
 			// 	},
 			// },
 			// Action{
