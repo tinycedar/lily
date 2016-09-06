@@ -24,11 +24,11 @@ If you're interested in this project please fork it and pull request is preferre
 * Opera
 * Sogou Explorer (搜狗高速浏览器)
 * QQ Browser (QQ浏览器)
-* 360 Chrome (360急速浏览器)
-* 360 Security Explorder (360安全浏览器)
-* liebao (猎豹安全浏览器)
+* 360 Browser (360极速浏览器)
+* 360 Secure Browser (360安全浏览器)
+* Liebao (Cheetah) Browser (猎豹安全浏览器)
 * Maxthon (遨游)
-* UC Browser
+* UC浏览器 (UC Browser)
 
 ## Roadmap
 Only Windows is supported recently and MacOS and Linux will be supported in the near future.
