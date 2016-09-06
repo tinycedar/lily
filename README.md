@@ -28,7 +28,7 @@ If you're interested in this project please fork it and pull request is preferre
 * 360 Secure Browser (360安全浏览器)
 * Liebao (Cheetah) Browser (猎豹安全浏览器)
 * Maxthon (遨游)
-* UC浏览器 (UC Browser)
+* UC Browser (UC浏览器)
 
 ## Roadmap
 Only Windows is supported recently and MacOS and Linux will be supported in the near future.
