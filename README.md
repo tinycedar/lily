@@ -14,9 +14,9 @@ If you're interested in this project please fork it and pull request is preferre
 ## Feature
 * Takes effect immediately on switch
 * Single process
-* Realtime notification 
+* Realtime notification
+* Hosts config saved automatically once you made modification
 * Written purely in Go
-* Clean code
 
 ## Supported browsers
 * Chrome
