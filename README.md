@@ -5,7 +5,7 @@
 ## Motivation
 We usually have to switch between a bunch of test environments which have same domains but with different IPs.
 Since it's troublesome to modify hosts directly, we use some tools to manage it.
-I've tried HostAdmin, SwitchHosts! and some others but found that they all have the same problem: browser reboot
+I've tried HostAdmin, SwitchHosts!, HostManager and so forth but found that they all have the same problem: browser relaunch
 is required in order to take effect after switch.
 
 So I decide to solve this problem by means of "Reinventing the wheel", and as a Go enthusiast, I choose Go to develop it.
@@ -38,6 +38,6 @@ Download binary in [Releases](https://github.com/tinycedar/lily/releases)
 
 ## Build
 ```
-go get -v github.com/tinycedar/lily
+go get -u -v github.com/tinycedar/lily
 go build -ldflags="-H windowsgui"
 ```
