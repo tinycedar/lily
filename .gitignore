@@ -32,4 +32,5 @@ error.log
 /conf/hosts/hst_*.hosts
 /conf/hosts/pre*.hosts
 /conf/config.json
+/conf/lily.pid
 .project
