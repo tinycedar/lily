@@ -100,6 +100,7 @@ func newTCPTable(r *ClassReader) *MIB_TCPTABLE2 {
 	return t
 }
 
+// netstat -ano | findstr 202.89.233.104
 func getTCPTable() *MIB_TCPTABLE2 {
 	getTCPTable2 := syscall.NewLazyDLL("Iphlpapi.dll").NewProc("GetTcpTable2")
 	var n uint32
@@ -110,12 +111,6 @@ func getTCPTable() *MIB_TCPTABLE2 {
 	if err, _, _ := getTCPTable2.Call(uintptr(unsafe.Pointer(&b[0])), uintptr(unsafe.Pointer(&n)), 1); err != 0 {
 		common.Error("Error calling GetTcpTable2: %v", syscall.Errno(err))
 	}
-	const (
-		// netstat -ano | findstr 202.89.233.104
-		LOCALHOST string = "127.0.0.1"
-		BING      string = "202.89.233.103"
-		KAOLA     string = "127.0.0.1"
-	)
 	table := newTCPTable(NewClassReader(b))
 	return table
 }

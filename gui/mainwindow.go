@@ -25,7 +25,7 @@ type widgetContext struct {
 func InitMainWindow() {
 	if err := (MainWindow{
 		AssignTo: &(context.mw),
-		Title:    "Lily",
+		Title:    "Lily - Best Hosts Manager",
 		MinSize:  Size{720, 500},
 		Layout:   VBox{},
 		// MenuItems: newMenuItems(mw),
