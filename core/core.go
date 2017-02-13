@@ -10,9 +10,7 @@ import (
 	"github.com/tinycedar/lily/conf"
 )
 
-const (
-	systemHosts = "C:/Windows/System32/drivers/etc/hosts"
-)
+var systemHosts = os.Getenv("SystemRoot") + "/System32/drivers/etc/hosts"
 
 // var batcher *Batcher
 
@@ -100,7 +98,8 @@ func readHostConfigMap(path string) map[string]string {
 	hostConfigMap := make(map[string]string)
 	file, err := os.Open(path)
 	if err != nil {
-		common.Info("Fail to open system_hosts: %s", err)
+		common.Error("Fail to open system_hosts: %s", err)
+		return hostConfigMap
 	}
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
