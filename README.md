@@ -30,7 +30,7 @@ If you're interested in this project please fork it and pull request is preferre
 * Maxthon (遨游)
 
 ## Roadmap
-Only Windows is supported recently and MacOS and Linux will be supported in the near future.
+Only Windows is supported recently, macOS and Linux will be supported in the near future.
 Probably I will use [Electron](http://electron.atom.io/) framework to implement cross-platform feature.
 
 ## Install
