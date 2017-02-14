@@ -5,13 +5,15 @@ go:
 env:
 
 before_install:
-
+  - mkdir -p $GOPATH/src/github.com/lxn
+  - cd $GOPATH/src/github.com/lxn
+  - git clone https://github.com/lxn/walk.git
+  - go build ./...
 install:
-  - go get github.com/lxn/walk
-
+  - cd $GOPATH/src/github.com/tinycedar/lily
+  - go build -ldflags="-H windowsgui"
 before_script:
 
 after_script:
 
 script:
-  - go test -v ./...
