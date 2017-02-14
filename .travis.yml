@@ -9,7 +9,7 @@ before_install:
   - cd $GOPATH/src/github.com/lxn
   - git clone https://github.com/lxn/walk.git
   - cd $GOPATH/src/github.com/lxn/walk
-  - go install
+  - ls
 install:
   - go get github.com/fsnotify/fsnotify
   - go get golang.org/x/sys/windows/registry
