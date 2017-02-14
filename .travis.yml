@@ -1,0 +1,17 @@
+language: go
+
+go:
+  - 1.7.4
+env:
+
+before_install:
+
+install:
+  - go get github.com/lxn/walk
+
+before_script:
+
+after_script:
+
+script:
+  - go test -v ./...
