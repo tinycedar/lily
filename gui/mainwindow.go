@@ -69,15 +69,13 @@ func setXY(mw *walk.MainWindow) {
 }
 
 func setTreeViewBackground(treeView *walk.TreeView) {
-	bg, err := walk.NewSolidColorBrush(walk.RGB(218, 223, 230))
-	if err != nil {
-		common.Error("Error new color brush: %v", err)
-	} else {
+	if bg, err := walk.NewSolidColorBrush(walk.RGB(237, 241, 244)); err == nil {
 		treeView.SetBackground(bg)
 	}
 }
 
 func showCurrentItem(hostConfigText *walk.TextEdit) {
+	hostConfigText.SetTextColor(walk.RGB(0, 0, 255))
 	if bytes := core.ReadCurrentHostConfig(); bytes != nil {
 		hostConfigText.SetText(string(bytes))
 	}

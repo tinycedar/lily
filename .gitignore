@@ -34,3 +34,6 @@ error.log
 /conf/config.json
 /conf/lily.pid
 .project
+*.iml
+modules.xml
+vcs.xml

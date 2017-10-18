@@ -17,6 +17,11 @@ func newTreeView() TreeView {
 	return TreeView{
 		AssignTo: &(context.treeView),
 		Model:    treeModel,
+		Font: Font{
+			Family: "Consolas",
+			PointSize: 9,
+			Bold: false,
+		},
 		// click
 		OnCurrentItemChanged: func() {
 			context.deleteButton.SetEnabled(true)
