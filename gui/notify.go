@@ -23,7 +23,7 @@ func newNotify() {
 		if !context.mw.Visible() {
 			context.mw.Show()
 		} else {
-			context.mw.SwitchToThisWindow()
+			// context.mw.SwitchToThisWindow()
 		}
 	}
 	go core.Triggered(f)

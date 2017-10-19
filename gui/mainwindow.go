@@ -64,8 +64,11 @@ func setWindowIcon(mw *walk.MainWindow) {
 func setXY(mw *walk.MainWindow) {
 	hDC := win.GetDC(0)
 	defer win.ReleaseDC(0, hDC)
-	mw.SetX((int(win.GetDeviceCaps(hDC, win.HORZRES)) - mw.Width()) / 2)
-	mw.SetY((int(win.GetDeviceCaps(hDC, win.VERTRES)) - mw.Height()) / 2)
+	length := int(win.GetDeviceCaps(hDC, win.HORZRES))
+	width := int(win.GetDeviceCaps(hDC, win.VERTRES))
+	mw.SetSize(walk.Size{length / 2, width / 2})
+	mw.SetX((length - mw.Width()) / 2)
+	mw.SetY((width - mw.Height()) / 2)
 }
 
 func setTreeViewBackground(treeView *walk.TreeView) {

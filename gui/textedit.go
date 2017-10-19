@@ -15,7 +15,7 @@ func newTextEdit() TextEdit {
 		StretchFactor: 3,
 		Font: Font{
             Family: "Consolas",
-            PointSize: 9,
+            PointSize: 13,
             Bold: false,
         },
 		OnKeyUp: func(key walk.Key) {
