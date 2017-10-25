@@ -17,11 +17,11 @@ func newTreeView() TreeView {
 	return TreeView{
 		AssignTo: &(context.treeView),
 		Model:    treeModel,
-		 Font: Font{
-		 	Family: "MS Shell Dlg 2",
-		 	PointSize: 11,
-		 	Bold: false,
-		 },
+		Font: Font{
+			Family:    "MS Shell Dlg 2",
+			PointSize: 11,
+			Bold:      false,
+		},
 		// click
 		OnCurrentItemChanged: func() {
 			context.deleteButton.SetEnabled(true)

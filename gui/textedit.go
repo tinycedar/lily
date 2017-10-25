@@ -14,10 +14,10 @@ func newTextEdit() TextEdit {
 		AssignTo:      &(context.hostConfigText),
 		StretchFactor: 3,
 		Font: Font{
-            Family: "Consolas",
-            PointSize: 13,
-            Bold: false,
-        },
+			Family:    "Consolas",
+			PointSize: 13,
+			Bold:      false,
+		},
 		OnKeyUp: func(key walk.Key) {
 			current := context.treeView.CurrentItem()
 			if current != nil {
