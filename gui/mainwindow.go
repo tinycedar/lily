@@ -26,8 +26,8 @@ func InitMainWindow() {
 	if err := (MainWindow{
 		AssignTo: &(context.mw),
 		Title:    "Lily - Best Hosts Manager",
-		MinSize:  Size{720, 500},
-		Layout:   VBox{},
+		//MinSize:  Size{720, 500},
+		Layout: VBox{},
 		// MenuItems: newMenuItems(mw),
 		ToolBar: newToolBar(),
 		Children: []Widget{
@@ -75,6 +75,7 @@ func setTreeViewBackground(treeView *walk.TreeView) {
 	if bg, err := walk.NewSolidColorBrush(walk.RGB(237, 241, 244)); err == nil {
 		treeView.SetBackground(bg)
 	}
+	treeView.SetItemHeight(19)
 }
 
 func showCurrentItem(hostConfigText *walk.TextEdit) {
