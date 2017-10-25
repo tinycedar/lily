@@ -1,6 +1,6 @@
 # Lily: hosts manager takes effect immediately on switch
 
-![](https://ws4.sinaimg.cn/large/006tNc79gy1fknlbrysl3j30qa0ett8q.jpg)
+![](https://ws2.sinaimg.cn/large/006tNbRwgy1fkuanxlo29j30qa0etq2y.jpg)
 
 ## Motivation
 We usually have to switch between a bunch of test environments which have same domains but with different IPs.
