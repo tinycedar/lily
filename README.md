@@ -1,6 +1,6 @@
-# Lily: hosts manager takes effect immediately on switch
+# Lily [![GitHub release](https://img.shields.io/github/release/tinycedar/lily.svg)](https://github.com/tinycedar/lily/releases) [![license](https://img.shields.io/github/license/tinycedar/lily.svg)]()
 
-![](https://ws2.sinaimg.cn/large/006tNbRwgy1fkuanxlo29j30qa0etq2y.jpg)
+Hosts manager takes effect immediately on switch
 
 ## Motivation
 We usually have to switch between a bunch of test environments which have same domains but with different IPs.
