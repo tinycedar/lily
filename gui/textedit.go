@@ -11,6 +11,8 @@ import (
 
 func newTextEdit() TextEdit {
 	return TextEdit{
+		HScroll:       true,
+		VScroll:       true,
 		AssignTo:      &(context.hostConfigText),
 		StretchFactor: 3,
 		Font: Font{
