@@ -1,0 +1,23 @@
+platform: x64
+
+branches:
+  only:
+    - master
+
+environment:
+  GOPATH: c:\gopath
+  GOVERSION: 1.10.2
+
+install:
+  - set PATH=%GOPATH%\bin;c:\go\bin;%PATH%
+  - rmdir c:\go /s /q
+  - go version
+  - go env
+  - mkdir c:\gopath
+  - go get -u -v github.com/tinycedar/lily
+  - go build -ldflags="-H windowsgui"
+
+build_script:
+
+test: off
+deploy: off
