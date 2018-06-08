@@ -13,7 +13,7 @@ is required in order to take effect after switch.
 So I decide to solve this problem by means of "Reinventing the wheel", and as a Go enthusiast, I choose Go to develop it.
 If you're interested in this project please fork it and pull request is preferred :)
 
-## Feature
+## Features
 * Takes effect immediately on switch
 * Single process
 * Realtime notification
