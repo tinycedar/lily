@@ -5,7 +5,7 @@ Hosts manager takes effect immediately on switch
 ![](https://ws2.sinaimg.cn/large/006tNbRwgy1fkuanxlo29j30qa0etq2y.jpg)
 
 ## Motivation
-We usually have to switch between a bunch of test environments which have same domains but with different IPs.
+We usually have to switch between a bunch of test environments which have same domains but different IPs.
 Since it's troublesome to modify hosts directly, we use some tools to manage it.
 I've tried HostAdmin, SwitchHosts!, HostManager and so forth but found that they all have the same problem: browser relaunch
 is required in order to take effect after switch.
