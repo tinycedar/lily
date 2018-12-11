@@ -1,4 +1,4 @@
-# Lily [![GitHub release](https://img.shields.io/github/release/tinycedar/lily.svg)](https://github.com/tinycedar/lily/releases) [![license](https://img.shields.io/github/license/tinycedar/lily.svg)]()
+# Lily [![GitHub release](https://img.shields.io/github/release/tinycedar/lily.svg)](https://github.com/tinycedar/lily/releases) [![license](https://img.shields.io/github/license/tinycedar/lily.svg)]()[![Build Status](https://travis-ci.org/tinycedar/lily.svg?branch=master)](https://travis-ci.org/tinycedar/lily)
 
 Hosts manager takes effect immediately on switch
 
@@ -43,4 +43,3 @@ Download binary in [Releases](https://github.com/tinycedar/lily/releases)
 go get -u -v github.com/tinycedar/lily
 go build -ldflags="-H windowsgui"
 ```
-<a href="https://info.flagcounter.com/B1t3"><img src="https://s04.flagcounter.com/count2/B1t3/bg_FFFFFF/txt_000000/border_CCCCCC/columns_2/maxflags_10/viewers_0/labels_1/pageviews_1/flags_0/percent_0/" alt="Flag Counter" border="0"></a>
