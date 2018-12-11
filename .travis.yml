@@ -3,15 +3,22 @@ language: go
 os: windows
 
 go:
-  - 1.7.4
+  - 1.11.2
   
 env:
 
 before_install:
+  - mkdir -p $GOPATH/src/github.com/lxn
+  - cd $GOPATH/src/github.com/lxn
+  - git clone https://github.com/lxn/walk.git
+  - cd $GOPATH/src/github.com/lxn/walk
+  - rm window.go
+  - ls
   - mkdir -p $GOPATH/src/github.com/tinycedar
   - cd $GOPATH/src/github.com/tinycedar
   - git clone https://github.com/tinycedar/walk.git
-  - cd $GOPATH/src/github.com/tinycedar/walk
+  - cp $GOPATH/src/github.com/tinycedar/walk/window.go $GOPATH/src/github.com/lxn
+  - cd $GOPATH/src/github.com/lxn/walk
   - ls
 install:
   - go get gopkg.in/Knetic/govaluate.v3
