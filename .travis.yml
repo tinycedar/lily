@@ -10,8 +10,8 @@ env:
 before_install:
   - mkdir -p $GOPATH/src/github.com/lxn
   - cd $GOPATH/src/github.com/lxn
-  - git clone https://github.com/lxn/walk.git
-  - cd $GOPATH/src/github.com/lxn/walk
+  - git clone https://github.com/tinycedar/walk.git
+  - cd $GOPATH/src/github.com/tinycedar/walk
   - ls
 install:
   - go get gopkg.in/Knetic/govaluate.v3
