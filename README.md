@@ -1,4 +1,4 @@
-# Lily [![GitHub release](https://img.shields.io/github/release/tinycedar/lily.svg)](https://github.com/tinycedar/lily/releases) [![license](https://img.shields.io/github/license/tinycedar/lily.svg)]()[![Build Status](https://travis-ci.org/tinycedar/lily.svg?branch=master)](https://travis-ci.org/tinycedar/lily)
+# Lily [![GitHub release](https://img.shields.io/github/release/tinycedar/lily.svg)](https://github.com/tinycedar/lily/releases) [![license](https://img.shields.io/github/license/tinycedar/lily.svg)]()[![Build Status] (https://travis-ci.org/tinycedar/lily.svg?branch=master)](https://travis-ci.org/tinycedar/lily)
 
 Hosts manager takes effect immediately on switch
 
