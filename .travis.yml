@@ -8,6 +8,7 @@ go:
 env:
 
 before_install:
+  - go env
   - mkdir -p $GOPATH/src/github.com/lxn
   - cd $GOPATH/src/github.com/lxn
   - git clone https://github.com/lxn/walk.git
