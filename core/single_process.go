@@ -40,7 +40,7 @@ func findStartedProcess() *os.Process {
 
 func writePidFile(pid int) {
 	if err := ioutil.WriteFile(pidFilePath, []byte(fmt.Sprint(pid)), os.ModeExclusive); err != nil {
-		common.Error("Error writing to system hosts file: ", err)
+		common.Error("Error writing to system hosts file: %v", err)
 	}
 }
 

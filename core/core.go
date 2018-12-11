@@ -76,7 +76,7 @@ func overwriteSystemHosts() {
 		return
 	}
 	if err := ioutil.WriteFile(systemHosts, bytes, os.ModeExclusive); err != nil {
-		common.Error("Error writing to system hosts file: ", err)
+		common.Error("Error writing to system hosts file: %v", err)
 	}
 }
 

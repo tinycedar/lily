@@ -25,7 +25,7 @@ func newTextEdit() TextEdit {
 			if current != nil {
 				file := "conf/hosts/" + current.Text() + ".hosts"
 				if err := ioutil.WriteFile(file, []byte(context.hostConfigText.Text()), os.ModeExclusive); err != nil {
-					common.Error("Error writing to system hosts file: ", err)
+					common.Error("Error writing to system hosts file: %v", err)
 				}
 			}
 		},
