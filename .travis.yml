@@ -8,8 +8,8 @@ go:
 env:
 
 before_install:
-  - mkdir -p $GOPATH/src/github.com/lxn
-  - cd $GOPATH/src/github.com/lxn
+  - mkdir -p $GOPATH/src/github.com/tinycedar
+  - cd $GOPATH/src/github.com/tinycedar
   - git clone https://github.com/tinycedar/walk.git
   - cd $GOPATH/src/github.com/tinycedar/walk
   - ls
