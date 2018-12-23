@@ -14,13 +14,11 @@ before_install:
   - git clone https://github.com/lxn/walk.git
   - cd $GOPATH/src/github.com/lxn/walk
   - rm window.go
-  - ls
   - mkdir -p $GOPATH/src/github.com/tinycedar
   - cd $GOPATH/src/github.com/tinycedar
   - git clone https://github.com/tinycedar/walk.git
   - cp $GOPATH/src/github.com/tinycedar/walk/window.go $GOPATH/src/github.com/lxn/walk
   - cd $GOPATH/src/github.com/lxn/walk
-  - ls
 install:
   - go get gopkg.in/Knetic/govaluate.v3
   - go get github.com/lxn/win
